@@ -76,7 +76,7 @@ public class PlayerController : MonoBehaviour
                     gc.GaugeEnabled(true);
                 gc.GaugeMove(gaugeSpeed);
                 //"AimFish"ボタンを押したら(２度目)アニメーションして魚にメッセージ送って状態遷移フラグを立てる
-                if(Input.GetButtonDown("Hunt"))
+                if(Input.GetButton("Hunt"))
                 {
                     Debug.Log(gc.GetGaugeValue());
                     //魚への処理
@@ -85,6 +85,8 @@ public class PlayerController : MonoBehaviour
                     Invoke("GaugeUnenabled", 1f);
                     //Idle状態に戻す処理
                     psc.EndAimFishState();
+                    //しばらくAimFish状態になれなくなる処理
+                    psc.ResetUpdateCounterForAimToAim();
                 }
                 break;
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Threading;
 using UnityEngine;
 
 /// <summary>
@@ -25,10 +26,12 @@ public class PlayerStateController
     private static PlayerStateController _singleton;//シングルトンオブジェクト
 
     private const float MOVE_SENSITIVITY = 0.1f;//ユーザーの移動入力がこの値以上なら移動状態に遷移できる
+    private const uint WAIT_TIME_FOR_AIM_TO_AIM = 300U;//AimFish状態から次のAimFish状態に遷移可能になるまでのUpdate呼び出し回数
     private Vector3 inputHV = Vector3.zero;//プレイヤーの縦・横入力値をまとめたもの(y軸は常に0)
     private PlayerState ps;//プレイヤーの現在の状態
     private float inputVartical;//縦移動の入力値
     private float inputHorizontal;//横カメラ移動の入力値
+    private uint updateCounterForAimToAim = 0;//Updateが呼び出される度にカウントする(状態遷移管理のためにリセットや取得を行う)
 
     /// <summary>
     /// プライベートコンストラクタ
@@ -85,6 +88,8 @@ public class PlayerStateController
         JudgeStateRun();
         JudgeStateRotate();
         JudgeStateAimFish();
+
+        ++updateCounterForAimToAim;
     }
 
     /// <summary>
@@ -103,6 +108,15 @@ public class PlayerStateController
     public float GetInputHorizontal()
     {
         return inputHorizontal;
+    }
+
+    /// <summary>
+    /// アップデート呼び出し数カウンタの値をリセットする
+    /// このメソッドを呼び出すことでAimFish状態の連続遷移を防げる
+    /// </summary>
+    public void ResetUpdateCounterForAimToAim()
+    {
+        updateCounterForAimToAim = 0;
     }
 
     /// <summary>
@@ -160,8 +174,8 @@ public class PlayerStateController
     /// </summary>
     private void JudgeStateAimFish()
     {
-        //"AimFish"ボタンが押されたかつIdleならAimFish
-        if(Input.GetButtonDown("AimFish") && ps == PlayerState.Idle)
+        //"AimFish"ボタンが押されたかつIdleかつアップデートカウンタの値が一定値より上ならAimFish
+        if(Input.GetButton("AimFish") && ps == PlayerState.Idle && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM)
         {
             ps = PlayerState.AimFish;
         }

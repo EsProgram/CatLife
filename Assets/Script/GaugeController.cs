@@ -79,7 +79,7 @@ public class GaugeController
     }
 
     /// <summary>
-    /// このメソッド呼び出し事ゲージの値を返す
+    /// このメソッド呼び出し事のゲージの値を返す
     /// </summary>
     /// <returns>ゲージの停止した幅</returns>
     public float GetGaugeValue()
