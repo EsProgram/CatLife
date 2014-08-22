@@ -162,6 +162,8 @@ public class PlayerStateController
     {
         //"AimFish"ボタンが押されたかつIdleならAimFish
         if(Input.GetButtonDown("AimFish") && ps == PlayerState.Idle)
+        {
             ps = PlayerState.AimFish;
+        }
     }
 }

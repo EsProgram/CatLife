@@ -25,13 +25,13 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         psc = PlayerStateController.GetInstance();
-        gc = GaugeController.GetInstance(gauge, frame);
+        gc = GaugeController.CreateInstance(gauge, frame);
+        gc.GaugeEnabled(false);
     }
 
     private void Start()
     {
         cc = GetComponent<CharacterController>();
-        gc.GaugeEnabled(false);
     }
 
     /// <summary>
@@ -72,12 +72,13 @@ public class PlayerController : MonoBehaviour
 
             case PlayerStateController.PlayerState.AimFish:
                 //ゲージの処理(表示・伸び縮み)
-                gc.GaugeEnabled(true);
+                if(!gc.IsGaugeEnabled())
+                    gc.GaugeEnabled(true);
                 gc.GaugeMove(gaugeSpeed);
                 //"AimFish"ボタンを押したら(２度目)アニメーションして魚にメッセージ送って状態遷移フラグを立てる
                 if(Input.GetButtonDown("Hunt"))
                 {
-                    Debug.Log(gc.GetLastGaugeValue());
+                    Debug.Log(gc.GetGaugeValue());
                     //魚への処理
 
                     //ゲージの非表示

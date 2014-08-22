@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class GaugeController
@@ -10,7 +11,13 @@ public class GaugeController
 
     private const float MAX = 255f;//ゲージの最大値
 
-    public static GaugeController GetInstance(GUITexture gauge, GUITexture frame)
+    /// <summary>
+    /// ゲージコントローラーのインスタンスを生成する
+    /// </summary>
+    /// <param name="gauge">ゲージ</param>
+    /// <param name="frame">フレーム</param>
+    /// <returns></returns>
+    public static GaugeController CreateInstance(GUITexture gauge, GUITexture frame)
     {
         if(_singleton == null)
             _singleton = new GaugeController(gauge, frame);
@@ -18,8 +25,19 @@ public class GaugeController
     }
 
     /// <summary>
-    /// プライベートコンストラクタ
+    /// CreateInstanceによって生成されたシングルトンオブジェクトへの参照を返す
+    /// CreateInstanceによってインスタンスが生成されていない場合Nullを返す
     /// </summary>
+    /// <returns>シングルトンオブジェクト</returns>
+    public static GaugeController GetInstance()
+    {
+        return _singleton ?? null;
+    }
+
+    /// <summary>
+    /// 使用しない
+    /// </summary>
+    [Obsolete("使用できません")]
     private GaugeController()
     {
     }
@@ -35,11 +53,6 @@ public class GaugeController
         this.frame = frame;
     }
 
-    private void Start()
-    {
-        GaugeEnabled(false);
-    }
-
     /// <summary>
     /// ゲージの表示非表示を設定する
     /// </summary>
@@ -51,25 +64,38 @@ public class GaugeController
     }
 
     /// <summary>
-    /// ゲージをスタートする
+    /// ゲージを動かす
     /// </summary>
     /// <param name="gaugeSpeed">
     /// ゲージ速度
-    /// 大きいほど速くなる
-    /// 偶数に近いと難易度が上がる
-    /// 奇数に近いと難易度が下がる
     /// </param>
     public void GaugeMove(float gaugeSpeed)
     {
-        gaugeWidth = Mathf.PingPong(MAX * gaugeSpeed * Mathf.Sin(Time.time), MAX);
+        gaugeWidth = Mathf.PingPong(Time.time * MAX * gaugeSpeed, MAX);
         gauge.pixelInset = new Rect(gauge.pixelInset.xMin,
                                     gauge.pixelInset.yMin,
                                     gaugeWidth,
                                     gauge.pixelInset.height);
     }
 
-    public float GetLastGaugeValue()
+    /// <summary>
+    /// このメソッド呼び出し事ゲージの値を返す
+    /// </summary>
+    /// <returns>ゲージの停止した幅</returns>
+    public float GetGaugeValue()
     {
         return gaugeWidth;
+    }
+
+    /// <summary>
+    /// ゲージが表示されているかどうかの真偽値を返す
+    /// </summary>
+    /// <returns>表示されていればtrue、それ以外ならfalse</returns>
+    public bool IsGaugeEnabled()
+    {
+        if(gauge.enabled && frame.enabled)
+            return true;
+        else
+            return false;
     }
 }
