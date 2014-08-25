@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class GaugeController
+public sealed class GaugeController
 {
     private static GaugeController _singleton;
     private GUITexture gauge;

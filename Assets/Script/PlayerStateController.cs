@@ -6,7 +6,7 @@ using UnityEngine;
 /// プレイヤーの状態を管理するシングルトンクラス
 /// 状態遷移もコントロールする
 /// </summary>
-public class PlayerStateController
+public sealed class PlayerStateController
 {
     /// <summary>
     /// プレイヤーの状態を表す列挙型
@@ -26,7 +26,7 @@ public class PlayerStateController
     private static PlayerStateController _singleton;//シングルトンオブジェクト
 
     private const float MOVE_SENSITIVITY = 0.1f;//ユーザーの移動入力がこの値以上なら移動状態に遷移できる
-    private const uint WAIT_TIME_FOR_AIM_TO_AIM = 300U;//AimFish状態から次のAimFish状態に遷移可能になるまでのUpdate呼び出し回数
+    private const uint WAIT_TIME_FOR_AIM_TO_AIM = 60U;//AimFish状態から次のAimFish状態に遷移可能になるまでのUpdate呼び出し回数
     private Vector3 inputHV = Vector3.zero;//プレイヤーの縦・横入力値をまとめたもの(y軸は常に0)
     private PlayerState ps;//プレイヤーの現在の状態
     private float inputVartical;//縦移動の入力値
@@ -35,8 +35,8 @@ public class PlayerStateController
 
     /// <summary>
     /// プライベートコンストラクタ
-    /// </summary>
     private PlayerStateController()
+    /// </summary>
     {
         ps = PlayerState.Idle;
     }

@@ -18,9 +18,9 @@ public class PlayerController : MonoBehaviour
     public float walkSpeed;
     public float rotateSpeed;
     public float runSpeed;
-    public GUITexture gauge;
-    public GUITexture frame;
-    public float gaugeSpeed;
+    public GUITexture gauge;//ゲージ本体
+    public GUITexture frame;//ゲージの枠
+    public float gaugeSpeed;//ゲージ速度(後に魚によって変更させる)
 
     private void Awake()
     {
@@ -79,10 +79,10 @@ public class PlayerController : MonoBehaviour
                 if(Input.GetButton("Hunt"))
                 {
                     Debug.Log(gc.GetGaugeValue());
-                    //魚への処理
-
                     //ゲージの非表示
                     Invoke("GaugeUnenabled", 1f);
+                    //魚への処理
+
                     //Idle状態に戻す処理
                     psc.EndAimFishState();
                     //しばらくAimFish状態になれなくなる処理
