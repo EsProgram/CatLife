@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     private PlayerStateController psc;
     private GaugeController gc;
     private AimControl ac;
+    private Vector3 snapGround;//接地時に下方向に加える力
     public float walkSpeed;
     public float rotateSpeed;
     public float runSpeed;
@@ -117,7 +118,12 @@ public class PlayerController : MonoBehaviour
             default:
                 break;
         }
+
         //重力処理
-        cc.Move(new Vector3(0f, Physics.gravity.y * Time.deltaTime, 0f));
+        if(cc.isGrounded)
+            snapGround = Vector3.down;
+        else
+            snapGround = Vector3.zero;
+        cc.Move(Physics.gravity * Time.deltaTime + snapGround);
     }
 }
