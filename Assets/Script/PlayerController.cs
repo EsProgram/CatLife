@@ -15,9 +15,11 @@ public class PlayerController : MonoBehaviour
     private CharacterController cc;
     private PlayerStateController psc;
     private GaugeController gc;
+    private AimControl ac;
     public float walkSpeed;
     public float rotateSpeed;
     public float runSpeed;
+    public float aimFishDistance;//魚を狙える距離
     public GUITexture gauge;//ゲージ本体
     public GUITexture frame;//ゲージの枠
     public float gaugeSpeed;//ゲージ速度(後に魚によって変更させる)
@@ -27,6 +29,7 @@ public class PlayerController : MonoBehaviour
         psc = PlayerStateController.GetInstance();
         gc = GaugeController.CreateInstance(gauge, frame);
         gc.GaugeEnabled(false);
+        ac = AimControl.GetInstance();
     }
 
     private void Start()
@@ -78,10 +81,16 @@ public class PlayerController : MonoBehaviour
                 //"AimFish"ボタンを押したら(２度目)アニメーションして魚にメッセージ送って状態遷移フラグを立てる
                 if(Input.GetButton("Hunt"))
                 {
-                    Debug.Log(gc.GetGaugeValue());
+                    Debug.Log("ゲージ停止位置 : " + gc.GetGaugeValue());
                     //ゲージの非表示
                     Invoke("GaugeUnenabled", 1f);
-                    //魚への処理
+                    //狙った魚の取得
+                    var aimfish = ac.AimingFish(aimFishDistance);
+                    if(aimfish != null)
+                    {
+                        //if(/*ゲージが一定値ならば魚にメッセージ等*/) { }
+                        Debug.Log("お魚が取れました（仮）");
+                    }
 
                     //Idle状態に戻す処理
                     psc.EndAimFishState();
