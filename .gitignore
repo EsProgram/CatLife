@@ -51,3 +51,6 @@ Assets/UnityVS
 *.csproj
 *.suo
 *.DotSettings
+/Assets/Standard Assets/Skyboxes
+/Assets/Standard Assets/Water (Basic)/Sources/Materials
+/Assets/Standard Assets/Water (Basic)

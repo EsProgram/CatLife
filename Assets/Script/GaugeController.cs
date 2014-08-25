@@ -7,20 +7,24 @@ public sealed class GaugeController
     private static GaugeController _singleton;
     private GUITexture gauge;
     private GUITexture frame;
+    private GUITexture permit;
     private float gaugeWidth;
 
-    private const float MAX = 255f;//ゲージの最大値
+    private const float MAX = 244f;//ゲージの最大値
+    private const float HALF = MAX / 2;//ゲージの半数
+    private const float FRAME_SIZE = 6f;//枠の幅
 
     /// <summary>
     /// ゲージコントローラーのインスタンスを生成する
     /// </summary>
     /// <param name="gauge">ゲージ</param>
     /// <param name="frame">フレーム</param>
+    /// <param name="permit">許可範囲</param>
     /// <returns></returns>
-    public static GaugeController CreateInstance(GUITexture gauge, GUITexture frame)
+    public static GaugeController CreateInstance(GUITexture gauge, GUITexture frame, GUITexture permit)
     {
         if(_singleton == null)
-            _singleton = new GaugeController(gauge, frame);
+            _singleton = new GaugeController(gauge, frame, permit);
         return _singleton;
     }
 
@@ -47,10 +51,12 @@ public sealed class GaugeController
     /// </summary>
     /// <param name="gauge">ゲージ</param>
     /// <param name="frame">ゲージの枠</param>
-    private GaugeController(GUITexture gauge, GUITexture frame)
+    /// <param name="permit">許可範囲</param>
+    private GaugeController(GUITexture gauge, GUITexture frame, GUITexture permit)
     {
         this.gauge = gauge;
         this.frame = frame;
+        this.permit = permit;
     }
 
     /// <summary>
@@ -61,6 +67,7 @@ public sealed class GaugeController
     {
         gauge.enabled = d;
         frame.enabled = d;
+        permit.enabled = d;
     }
 
     /// <summary>
@@ -79,6 +86,17 @@ public sealed class GaugeController
     }
 
     /// <summary>
+    /// ゲージが許可範囲内ならtrue
+    /// </summary>
+    /// <returns>成否</returns>
+    public bool IsGaugePermit()
+    {
+        if(permit.pixelInset.x + HALF <= gaugeWidth && gaugeWidth <= permit.pixelInset.x + HALF + permit.pixelInset.width)
+            return true;
+        return false;
+    }
+
+    /// <summary>
     /// このメソッド呼び出し事のゲージの値を返す
     /// </summary>
     /// <returns>ゲージの停止した幅</returns>
@@ -88,12 +106,28 @@ public sealed class GaugeController
     }
 
     /// <summary>
+    /// 許可範囲のxオフセットと幅を設定する
+    /// x + widh の値が不正な値を取る場合は何もしない
+    /// </summary>
+    /// <param name="x">0 ~ 244</param>
+    /// <param name="width">x + width が 0 ~ 244 になる値</param>
+    public void SetPermitXAndWidth(float x, float width)
+    {
+        if(x < 0f || width < 0f || MAX < x + width)
+        {
+            Debug.LogError(string.Format("Permitに不正な値が設定されました\nx = {0}, width = {1}", x, width));
+            return;
+        }
+        permit.pixelInset = new Rect(x - HALF, -10f, width, 20f);
+    }
+
+    /// <summary>
     /// ゲージが表示されているかどうかの真偽値を返す
     /// </summary>
     /// <returns>表示されていればtrue、それ以外ならfalse</returns>
     public bool IsGaugeEnabled()
     {
-        if(gauge.enabled && frame.enabled)
+        if(gauge.enabled && frame.enabled && permit.enabled)
             return true;
         else
             return false;

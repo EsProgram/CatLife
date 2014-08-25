@@ -22,12 +22,13 @@ public class PlayerController : MonoBehaviour
     public float aimFishDistance;//魚を狙える距離
     public GUITexture gauge;//ゲージ本体
     public GUITexture frame;//ゲージの枠
+    public GUITexture permit;//ゲージの許可範囲
     public float gaugeSpeed;//ゲージ速度(後に魚によって変更させる)
 
     private void Awake()
     {
         psc = PlayerStateController.GetInstance();
-        gc = GaugeController.CreateInstance(gauge, frame);
+        gc = GaugeController.CreateInstance(gauge, frame, permit);
         gc.GaugeEnabled(false);
         ac = AimControl.GetInstance();
     }
@@ -74,29 +75,43 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case PlayerStateController.PlayerState.AimFish:
-                //ゲージの処理(表示・伸び縮み)
+                //ゲージの処理(表示・パーミット設定)
                 if(!gc.IsGaugeEnabled())
+                {
+                    //本来なら魚によって幅をまちまちにする。今はとりあえずランダム(不正な値を取る場合がある)
+                    gc.SetPermitXAndWidth(Random.Range(0, 244), Random.Range(0, 244));
                     gc.GaugeEnabled(true);
-                gc.GaugeMove(gaugeSpeed);
-                //"AimFish"ボタンを押したら(２度目)アニメーションして魚にメッセージ送って状態遷移フラグを立てる
+                }
+                //"Hunt"ボタンを押したらアニメーションして魚にメッセージ送って状態遷移フラグを立てる
                 if(Input.GetButton("Hunt"))
                 {
-                    Debug.Log("ゲージ停止位置 : " + gc.GetGaugeValue());
+                    //Debug.Log("ゲージ停止位置 : " + gc.GetGaugeValue());
+                    //Debug.Log("ゲージパーミット : " + gc.IsGaugePermit());
+
                     //ゲージの非表示
                     Invoke("GaugeUnenabled", 1f);
                     //狙った魚の取得
                     var aimfish = ac.AimingFish(aimFishDistance);
+                    //魚が近くにいてたら
                     if(aimfish != null)
                     {
-                        //if(/*ゲージが一定値ならば魚にメッセージ等*/) { }
-                        Debug.Log("お魚が取れました（仮）");
+                        //ゲージが許可範囲内で停止したら
+                        if(gc.IsGaugePermit())
+                            Debug.Log("お魚が取れました");
+                        else
+                            Debug.Log("お魚を取れませんでした");
                     }
+                    else
+                        Debug.Log("お魚が近くにいませんでした");
 
                     //Idle状態に戻す処理
                     psc.EndAimFishState();
                     //しばらくAimFish状態になれなくなる処理
                     psc.ResetUpdateCounterForAimToAim();
                 }
+                else
+                    //ゲージを動かす
+                    gc.GaugeMove(gaugeSpeed);
                 break;
 
             default:
