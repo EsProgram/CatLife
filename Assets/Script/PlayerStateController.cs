@@ -176,8 +176,8 @@ public sealed class PlayerStateController
     /// </summary>
     private void JudgeStateAimFish()
     {
-        //"AimFish"ボタンが押されたかつIdleかつアップデートカウンタの値が一定値より上ならAimFish
-        if(Input.GetButton("AimFish") && ps == PlayerState.Idle && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM)
+        //"AimFish"ボタンが押されたかつアップデートカウンタの値が一定値より上ならAimFish
+        if(Input.GetButton("AimFish") && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM)
         {
             ps = PlayerState.AimFish;
         }

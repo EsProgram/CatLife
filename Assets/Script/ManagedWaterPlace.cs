@@ -29,7 +29,9 @@ public class ManagedWaterPlace : MonoBehaviour
     /// </returns>
     public WaterPlace FindWithName(string name)
     {
-        WaterPlace place = waterPlaces.FirstOrDefault(w => w.name == name);
+        WaterPlace place = waterPlaces.FirstOrDefault(w => w != null && w.gameObject != null ? w.name == name : false);
+        if(place == null)
+            Debug.LogError("指定した名前の水場が見つかりませんでした");
         return place;
     }
 }

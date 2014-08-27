@@ -10,7 +10,9 @@ public class FishController : MonoBehaviour
     private CharacterController cc;
     private bool moveFlag;
     private int updateCounter;//FixedUpdateにより加算されるカウンタ
-    private const int FLAG_CHANGE_COUNT = 200;//moveFlagが反転するカウント数
+    private const int FLAG_CHANGE_COUNT = 60;//moveFlagが反転する基本カウント数
+    private int ADD_COUNT_MAX = 60;//追加カウント数のMAX
+    private int addCount;//追加カウント数(乱数)
     private Vector3 snapGround;
 
     /*ゲージ関連*/
@@ -41,6 +43,7 @@ public class FishController : MonoBehaviour
     private void Start()
     {
         cc = GetComponent<CharacterController>();
+        addCount = Random.Range(0, ADD_COUNT_MAX);
     }
 
     private void Update()
@@ -70,10 +73,11 @@ public class FishController : MonoBehaviour
         ++updateCounter;
 
         //フラグスイッチ
-        if(updateCounter > FLAG_CHANGE_COUNT)
+        if(updateCounter > FLAG_CHANGE_COUNT + addCount)
         {
             moveFlag = !moveFlag;
             updateCounter = 0;
+            addCount = Random.Range(0, ADD_COUNT_MAX);
         }
     }
 }
