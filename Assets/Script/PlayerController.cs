@@ -48,6 +48,11 @@ public class PlayerController : MonoBehaviour
         gc.GaugeEnabled(false);
     }
 
+    private void SetAimFlagFalse()
+    {
+        ac.SetAimFlagFalse();
+    }
+
     private void FixedUpdate()
     {
         //プレイヤーの状態を更新
@@ -120,7 +125,7 @@ public class PlayerController : MonoBehaviour
                     //しばらくAimFish状態になれなくなる処理
                     psc.ResetUpdateCounterForAimToAim();
                     //魚のAim状態を解除する(Aimフラグを解除し魚が動き回れる状態に遷移する)
-                    ac.SetAimFlagFalse();
+                    Invoke("SetAimFlagFalse", 0.5f);
                 }
                 else
                     //ゲージを動かす
