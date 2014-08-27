@@ -41,13 +41,16 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Invokeメソッドでの呼び出し用
+    /// Invokeでの呼び出し用
     /// </summary>
     private void GaugeUnenabled()
     {
         gc.GaugeEnabled(false);
     }
 
+    /// <summary>
+    /// Invokeでの呼び出し用
+    /// </summary>
     private void SetAimFlagFalse()
     {
         ac.SetAimFlagFalse();
