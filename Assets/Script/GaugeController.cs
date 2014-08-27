@@ -10,8 +10,8 @@ public sealed class GaugeController
     private GUITexture permit;
     private float gaugeWidth;
 
-    private const float MAX = 244f;//ゲージの最大値
-    private const float HALF = MAX / 2;//ゲージの半数
+    public const float MAX = 244f;//ゲージの最大値
+    public const float HALF = MAX / 2;//ゲージの半数
     private const float FRAME_SIZE = 6f;//枠の幅
 
     /// <summary>

@@ -10,7 +10,7 @@ public class ManagedFishInstantiate : MonoBehaviour
 {
     public Fish[] fishesPrefab;
 
-    [System.NonSerialized]
+    [HideInInspector]
     public List<Fish> fishes = new List<Fish>();//現在ゲームシーンに存在する魚。AimTrigger付近にいるかを確かめる用
 
     private ManagedWaterPlace managedWaterPlaces;
@@ -48,7 +48,7 @@ public class ManagedFishInstantiate : MonoBehaviour
         waterRange.x = Random.Range(-waterRange.x, waterRange.x) / 3;
         waterRange.z = Random.Range(-waterRange.z, waterRange.z) / 3;
         Fish f = new Fish();
-        f.fish = Instantiate(fish,
+        f.fishPrefab = Instantiate(fish,
                              Vector3.up + waterPlace.transform.position + waterRange,
                              Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0))) as GameObject;
         fishes.Add(f);
