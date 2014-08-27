@@ -4,14 +4,24 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class FishController : MonoBehaviour
 {
+    public float speed;
+
     private AimControl ac;
     private CharacterController cc;
+    private bool moveFlag;
+    private int updateCounter;//FixedUpdateにより加算されるカウンタ
+    private const int FLAG_CHANGE_COUNT = 200;//moveFlagが反転するカウント数
+    private Vector3 snapGround;
 
     /*ゲージ関連*/
     [SerializeField]
     private float gaugeSpeed;
     [SerializeField]
     private float permitWidth;
+
+    private FishController()
+    {
+    }
 
     /// <summary>
     /// この魚のゲージ速度を返す
@@ -35,15 +45,35 @@ public class FishController : MonoBehaviour
 
     private void Update()
     {
-        //Aim範囲内なら停止
-        //それ以外なら数秒動いて数秒停止
-        if(ac.IsAim()) { Debug.Log("お魚が狙われてるよ");/*何もしない(停止)*/ }
+        //Aim範囲内なら何もしない(停止)
+        if(ac.IsAim(this.gameObject)) { /*何もしない(魚停止)*/}
         else
         {
-            Debug.Log("お魚は狙われてないよ");
             //moveFlagがtrueなら動く
             //falseなら何もしない
-            //moveFlagはUpdate回数で管理？
+            if(moveFlag)
+            {
+                cc.SimpleMove(transform.forward * speed * Time.deltaTime);
+            }
+        }
+
+        //重力処理
+        if(cc.isGrounded)
+            snapGround = Vector3.down;
+        else
+            snapGround = Vector3.zero;
+        cc.Move(Physics.gravity * Time.deltaTime + snapGround);
+    }
+
+    private void FixedUpdate()
+    {
+        ++updateCounter;
+
+        //フラグスイッチ
+        if(updateCounter > FLAG_CHANGE_COUNT)
+        {
+            moveFlag = !moveFlag;
+            updateCounter = 0;
         }
     }
 }

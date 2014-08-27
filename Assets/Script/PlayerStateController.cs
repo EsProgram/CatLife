@@ -31,7 +31,9 @@ public sealed class PlayerStateController
     private PlayerState ps;//プレイヤーの現在の状態
     private float inputVartical;//縦移動の入力値
     private float inputHorizontal;//横カメラ移動の入力値
-    private uint updateCounterForAimToAim = 0;//Updateが呼び出される度にカウントする(状態遷移管理のためにリセットや取得を行う)
+    //Updateが呼び出される度にカウントする(状態遷移管理のためにリセットや取得を行う)
+    //Updateはキャラクタースクリプト内のFixedUpdateで呼び出されるため一定の時間でカウントされる
+    private uint updateCounterForAimToAim = 0;
 
     /// <summary>
     /// プライベートコンストラクタ

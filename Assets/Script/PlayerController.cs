@@ -27,6 +27,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GUITexture permit;//ゲージの許可範囲
 
+    private PlayerController()
+    {
+    }
+
     private void Awake()
     {
         psc = PlayerStateController.GetInstance();
@@ -46,14 +50,6 @@ public class PlayerController : MonoBehaviour
     private void GaugeUnenabled()
     {
         gc.GaugeEnabled(false);
-    }
-
-    /// <summary>
-    /// Invokeでの呼び出し用
-    /// </summary>
-    private void SetAimFlagFalse()
-    {
-        ac.SetAimFlagFalse();
     }
 
     private void FixedUpdate()
@@ -127,8 +123,6 @@ public class PlayerController : MonoBehaviour
                     psc.EndAimFishState();
                     //しばらくAimFish状態になれなくなる処理
                     psc.ResetUpdateCounterForAimToAim();
-                    //魚のAim状態を解除する(Aimフラグを解除し魚が動き回れる状態に遷移する)
-                    Invoke("SetAimFlagFalse", 0.5f);
                 }
                 else
                     //ゲージを動かす
