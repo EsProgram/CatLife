@@ -31,6 +31,7 @@ public class ManagedFishInstantiate : MonoBehaviour
     /// <param name="waterPlace">水場</param>
     public void CreateFish(Fish fish, WaterPlace waterPlace)
     {
+        //不正検知
         if(fish == null || waterPlace == null || fish.gameObject == null || waterPlace.gameObject == null)
         {
             Debug.LogError("CreateFishの引数に渡されたオブジェクトがNullでした");
@@ -49,14 +50,17 @@ public class ManagedFishInstantiate : MonoBehaviour
             return;
         }
 
+        //生成場所の計算
         Vector3 waterRange = waterPlace.gameObject.transform.lossyScale;
         waterRange.y = 0;
         waterRange.x = Random.Range(-waterRange.x, waterRange.x) / 3;
         waterRange.z = Random.Range(-waterRange.z, waterRange.z) / 3;
+        //実体化
         Fish f = new Fish();
         f.fishPrefab = Instantiate(fish.gameObject,
                              Vector3.up + waterPlace.gameObject.transform.position + waterRange,
                              Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0))) as GameObject;
+        //参照フィールドへの追加
         fishes.Add(f);
     }
 
@@ -68,8 +72,11 @@ public class ManagedFishInstantiate : MonoBehaviour
     private void Start()
     {
         //テスト生成
-        CreateFish(fishesPrefab[0], managedWaterPlaces.FindWithName("Mizuba1"));
-        CreateFish(fishesPrefab[1], managedWaterPlaces.FindWithName("Mizuba1"));
+        for(int i = 0; i < 10; ++i)
+        {
+            CreateFish(fishesPrefab[0], managedWaterPlaces.FindWithName("Mizuba1"));
+            CreateFish(fishesPrefab[1], managedWaterPlaces.FindWithName("Mizuba1"));
+        }
     }
 
     private void Update()
