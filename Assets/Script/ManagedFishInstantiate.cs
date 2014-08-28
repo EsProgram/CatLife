@@ -72,7 +72,7 @@ public class ManagedFishInstantiate : MonoBehaviour
     private void Start()
     {
         //テスト生成
-        for(int i = 0; i < 10; ++i)
+        for(int i = 0; i < 5; ++i)
         {
             CreateFish(fishesPrefab[0], managedWaterPlaces.FindWithName("Mizuba1"));
             CreateFish(fishesPrefab[1], managedWaterPlaces.FindWithName("Mizuba1"));

@@ -10,13 +10,13 @@ public class FishController : MonoBehaviour
     private CharacterController cc;
     private bool moveFlag;
     private int updateCounter;//FixedUpdateにより加算されるカウンタ
-    private const int FLAG_CHANGE_COUNT = 60;//moveFlagが反転する基本カウント数
-    private int ADD_COUNT_MAX = 60;//追加カウント数のMAX
+    private const int FLAG_CHANGE_COUNT = 30;//moveFlagが反転する基本カウント数
+    private int ADD_COUNT_MAX = 30;//追加カウント数のMAX
     private int addCount;//追加カウント数(乱数)
     private Vector3 snapGround;
     private float rotateAng;//１回の回転行動で回転する角度
     private float rotateDir;//回転方向(左回転、右回転)
-    private bool groundTouchFlag;
+    private bool groundOrPlayerTouchFlag;
 
     /*ゲージ関連*/
     [SerializeField]
@@ -90,10 +90,10 @@ public class FishController : MonoBehaviour
             if(!moveFlag)
             {
                 //大地に接触してしまっていたら大きく方向転換する
-                if(groundTouchFlag)
+                if(groundOrPlayerTouchFlag)
                 {
                     rotateAng = Random.Range(140, 180);
-                    groundTouchFlag = false;
+                    groundOrPlayerTouchFlag = false;
                 }
                 else
                     rotateAng = Random.Range(50, 100);
@@ -105,13 +105,7 @@ public class FishController : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         //"Ground"と接触していたら強制的に回転方向を変更する
-        if(hit.gameObject.tag == "Ground" && !groundTouchFlag)
-        {
-            Debug.Log("HIT");
-            groundTouchFlag = true;
-        }
-        //この部分は他のところでフラグを変えたほうが効率がいい
-        //else
-        //    groundTouchFlag = false;
+        if(hit.gameObject.tag == "Ground" || hit.gameObject.tag == "Player" && !groundOrPlayerTouchFlag)
+            groundOrPlayerTouchFlag = true;
     }
 }
