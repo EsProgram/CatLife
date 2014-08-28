@@ -85,7 +85,7 @@ public class PlayerController : MonoBehaviour
                 //ゲージがまだ表示されてなければゲージの表示
                 if(!gc.IsGaugeEnabled())
                 {
-                    //魚のコントロールを得る(狙い中の魚を得たらAimフラグをtrueにし、魚を動けない状態に遷移させる)
+                    //狙っている魚のコントロールを得る(魚を動けない状態に遷移させる)
                     aimFishCtrl = default(FishController);
                     var aimFish = ac.AimingFish();
                     if(aimFish != null)
@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour
                     gc.GaugeEnabled(true);
                 }
 
-                //"Hunt"ボタンを押したらアニメーションして魚にメッセージ送って状態遷移フラグを立てる
+                //"Hunt"ボタンを押したら
                 if(Input.GetButton("Hunt"))
                 {
                     //ゲージの非表示
@@ -110,7 +110,7 @@ public class PlayerController : MonoBehaviour
                     //魚が近くにいてたら
                     if(aimFishCtrl != null)
                     {
-                        //ゲージが許可範囲内で停止したら
+                        //ゲージが許可範囲内で停止したらアニメーションして魚にメッセージを送る
                         if(gc.IsGaugePermit())
                             Debug.Log("お魚が取れました");
                         else
@@ -125,7 +125,7 @@ public class PlayerController : MonoBehaviour
                     psc.ResetUpdateCounterForAimToAim();
                 }
                 else
-                    //ゲージを動かす
+                    //ゲージを動かす("Hunt"ボタンがまだ押されていなかった場合)
                     gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
                 break;
 
