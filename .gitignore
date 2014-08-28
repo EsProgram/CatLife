@@ -39,10 +39,10 @@ Icon
 Library
 Temp
 obj
-Assets/Material
-Assets/Prefab
-Assets/Scene
-Assets/UnityVS
+/Assets/Material
+/Assets/Prefab
+/Assets/Scene
+/Assets/UnityVS
 *.pidb
 *.unityproj
 *.sln
