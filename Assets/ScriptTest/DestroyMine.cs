@@ -3,13 +3,20 @@ using UnityEngine;
 
 public class DestroyMine : MonoBehaviour
 {
+    private static GameObject allowAttachedObject;
+
     private DestroyMine()
     {
     }
 
     private void Awake()
     {
-        if(true)
+        allowAttachedObject = GameObject.FindGameObjectWithTag("Player");
+    }
+
+    private void Start()
+    {
+        if(allowAttachedObject != this.gameObject)
             Destroy(this);
     }
 }
