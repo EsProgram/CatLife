@@ -21,11 +21,11 @@ public class PlayerController : MonoBehaviour
     public float runSpeed;
 
     [SerializeField]
-    private GUITexture gauge;//ゲージ本体
+    private GUITexture gauge = default(GUITexture);//ゲージ本体
     [SerializeField]
-    private GUITexture frame;//ゲージの枠
+    private GUITexture frame = default(GUITexture);//ゲージの枠
     [SerializeField]
-    private GUITexture permit;//ゲージの許可範囲
+    private GUITexture permit = default(GUITexture);//ゲージの許可範囲
 
     private PlayerController()
     {

@@ -8,6 +8,7 @@ public class FishController : MonoBehaviour
 
     private AimControl ac;
     private CharacterController cc;
+    private PlayerStateController psc;
     private bool moveFlag;
     private int updateCounter;//FixedUpdateにより加算されるカウンタ
     private const int FLAG_CHANGE_COUNT = 30;//moveFlagが反転する基本カウント数
@@ -20,9 +21,9 @@ public class FishController : MonoBehaviour
 
     /*ゲージ関連*/
     [SerializeField]
-    private float gaugeSpeed;
+    private float gaugeSpeed = default(float);
     [SerializeField]
-    private float permitWidth;
+    private float permitWidth = default(float);
 
     private FishController()
     {
@@ -38,17 +39,22 @@ public class FishController : MonoBehaviour
     /// </summary>
     public float PermitWidth { get { return permitWidth; } }
 
+    private void Awake()
+    {
+        addCount = Random.Range(0, ADD_COUNT_MAX);
+        psc = PlayerStateController.GetInstance();
+    }
+
     private void Start()
     {
         cc = GetComponent<CharacterController>();
-        addCount = Random.Range(0, ADD_COUNT_MAX);
         ac = FindObjectOfType<AimControl>();
     }
 
     private void Update()
     {
         //狙っている魚は停止
-        if(ac.CompareAimObject(this.gameObject)) { /*何もしない(魚停止)*/}
+        if(psc.GetState() == PlayerStateController.PlayerState.AimFish && ac.CompareAimObject(this.gameObject)) { /*何もしない(魚停止)*/}
         else
         {
             //moveFlagがtrueなら動く

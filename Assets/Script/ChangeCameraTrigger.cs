@@ -11,10 +11,10 @@ public class ChangeCameraTrigger : MonoBehaviour
 {
     [SerializeField]
     //変更するカメラへの参照
-    private Camera targetCamera;
+    private Camera targetCamera = default(Camera);
 
-    //現在有効なカメラ
-    private static Camera currentCamera;
+    //現在有効なカメラ(最初はメインカメラにする)
+    private static Camera currentCamera = Camera.main;
 
     private void Start()
     {
@@ -28,9 +28,6 @@ public class ChangeCameraTrigger : MonoBehaviour
         //メインカメラ以外のカメラがターゲットになっていた場合、初期では無効にしておく
         if(targetCamera != Camera.main)
             targetCamera.enabled = false;
-
-        //最初はメインカメラをcurrentCameraに設定する
-        currentCamera = Camera.main;
 
         //メインカメラが存在しない場合は念のためどれかしらを設定するが、エラーログを出力する
         if(currentCamera == null)
