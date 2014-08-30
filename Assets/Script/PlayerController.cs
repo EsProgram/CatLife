@@ -36,12 +36,12 @@ public class PlayerController : MonoBehaviour
         psc = PlayerStateController.GetInstance();
         gc = GaugeController.CreateInstance(gauge, frame, permit);
         gc.GaugeEnabled(false);
-        ac = AimControl.GetInstance();
     }
 
     private void Start()
     {
         cc = GetComponent<CharacterController>();
+        ac = FindObjectOfType<AimControl>();
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public class PlayerController : MonoBehaviour
                 {
                     //狙っている魚のコントロールを得る(魚を動けない状態に遷移させる)
                     aimFishCtrl = default(FishController);
-                    var aimFish = ac.AimingFish();
+                    var aimFish = ac.GetAimObject();
                     if(aimFish != null)
                         aimFishCtrl = aimFish.gameObject.GetComponent<FishController>();
 

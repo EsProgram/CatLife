@@ -38,21 +38,17 @@ public class FishController : MonoBehaviour
     /// </summary>
     public float PermitWidth { get { return permitWidth; } }
 
-    private void Awake()
-    {
-        ac = AimControl.GetInstance();
-    }
-
     private void Start()
     {
         cc = GetComponent<CharacterController>();
         addCount = Random.Range(0, ADD_COUNT_MAX);
+        ac = FindObjectOfType<AimControl>();
     }
 
     private void Update()
     {
-        //Aim範囲内なら何もしない(停止)
-        if(ac.IsAim(this.gameObject)) { /*何もしない(魚停止)*/}
+        //狙っている魚は停止
+        if(ac.CompareAimObject(this.gameObject)) { /*何もしない(魚停止)*/}
         else
         {
             //moveFlagがtrueなら動く
