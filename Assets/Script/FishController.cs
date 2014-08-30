@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -17,7 +19,10 @@ public class FishController : MonoBehaviour
     private Vector3 snapGround;
     private float rotateAng;//１回の回転行動で回転する角度
     private float rotateDir;//回転方向(左回転、右回転)
-    private bool groundOrPlayerTouchFlag;
+    private bool groundTouchFlag;
+    private bool aimedFlag;
+    private Color alpha = new Color(0, 0, 0, 0.01f);
+    private List<Material> materials = new List<Material>();
 
     /*ゲージ関連*/
     [SerializeField]
@@ -49,24 +54,43 @@ public class FishController : MonoBehaviour
     {
         cc = GetComponent<CharacterController>();
         ac = FindObjectOfType<AimControl>();
+
+        foreach(Transform child in transform)
+        {
+            if(child != null && child.renderer != null && child.renderer.material != null)
+                foreach(Material mat in child.renderer.materials)
+                    materials.Add(mat);
+        }
     }
 
     private void Update()
     {
         //狙っている魚は停止
-        if(psc.GetState() == PlayerStateController.PlayerState.AimFish && ac.CompareAimObject(this.gameObject)) { /*何もしない(魚停止)*/}
+        if(psc.GetState() == PlayerStateController.PlayerState.AimFish && ac.CompareAimObject(this.gameObject))
+        {
+            aimedFlag = true;
+        }
         else
         {
+            //既に狙われていたことがあった場合の処理
+            if(aimedFlag)
+            {
+                //魚取りに成功した時の処理-----------------------------------------------------
+
+                //魚取りに失敗した時の処理-----------------------------------------------------
+                //透明にしていく
+                if(materials.Any(m => m.color.a > 0))
+                    materials.ForEach(m => m.color -= alpha);
+                else
+                    Destroy(this.gameObject);
+            }
+
             //moveFlagがtrueなら動く
             //falseなら回転
             if(moveFlag)
-            {
                 cc.SimpleMove(transform.forward * speed * Time.deltaTime);
-            }
             else
-            {
                 transform.Rotate(transform.up * rotateAng * rotateDir / (FLAG_CHANGE_COUNT + addCount));
-            }
         }
 
         //重力処理
@@ -92,10 +116,10 @@ public class FishController : MonoBehaviour
             if(!moveFlag)
             {
                 //大地に接触してしまっていたら大きく方向転換する
-                if(groundOrPlayerTouchFlag)
+                if(groundTouchFlag)
                 {
                     rotateAng = Random.Range(140, 180);
-                    groundOrPlayerTouchFlag = false;
+                    groundTouchFlag = false;
                 }
                 else
                     rotateAng = Random.Range(50, 100);
@@ -107,7 +131,7 @@ public class FishController : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         //"Ground"と接触していたら強制的に回転方向を変更する
-        if(hit.gameObject.tag == "Ground" || hit.gameObject.tag == "Player" && !groundOrPlayerTouchFlag)
-            groundOrPlayerTouchFlag = true;
+        if(hit.gameObject.tag == "Ground" && !groundTouchFlag)
+            groundTouchFlag = true;
     }
 }
