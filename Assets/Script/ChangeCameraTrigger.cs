@@ -14,10 +14,11 @@ public class ChangeCameraTrigger : MonoBehaviour
     private Camera targetCamera = default(Camera);
 
     //現在有効なカメラ(最初はメインカメラにする)
-    private static Camera currentCamera = Camera.main;
+    private static Camera currentCamera;
 
     private void Start()
     {
+        currentCamera = Camera.main;
         //アタッチされたコライダーのisTriggerをtrueにする
         collider.isTrigger = true;
 

@@ -16,7 +16,7 @@ public sealed class PlayerStateController
         None,
         Idle,
         WalkForward,
-        WarkBack,
+        WalkBack,
         Run,
         Rotate,
         AimFish,
@@ -61,6 +61,16 @@ public sealed class PlayerStateController
     public PlayerState GetState()
     {
         return ps;
+    }
+
+    /// <summary>
+    /// 引数に指定したステートが現在のステートと等しいかどうか判定する
+    /// </summary>
+    /// <param name="ps">判定したいステート</param>
+    /// <returns></returns>
+    public bool IsState(PlayerState ps)
+    {
+        return GetState() == ps;
     }
 
     /// <summary>
@@ -148,7 +158,7 @@ public sealed class PlayerStateController
     {
         //ユーザーによる縦入力が-MOVE_SENSITIVITY以下かつAimFishでないならばWalkBack
         if(inputVartical <= -MOVE_SENSITIVITY && ps != PlayerState.AimFish)
-            ps = PlayerState.WarkBack;
+            ps = PlayerState.WalkBack;
     }
 
     /// <summary>

@@ -1,10 +1,7 @@
-﻿/*
- * プレイヤーの動きを制御する。
- * コントローラー(キーボード)による操作の制御
- */
-
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
+
+using PState = PlayerStateController.PlayerState;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -60,80 +57,112 @@ public class PlayerController : MonoBehaviour
         //状態における処理
         switch(psc.GetState())
         {
-            case PlayerStateController.PlayerState.Idle:
+            case PState.Idle:
                 //Idle処理
                 break;
 
-            case PlayerStateController.PlayerState.WalkForward:
+            case PState.WalkForward:
                 cc.SimpleMove(transform.forward * psc.GetInputVertical() * walkSpeed);
                 break;
 
-            case PlayerStateController.PlayerState.WarkBack:
+            case PState.WalkBack:
                 cc.SimpleMove(transform.forward * psc.GetInputVertical() * walkSpeed);
                 break;
 
-            case PlayerStateController.PlayerState.Run:
+            case PState.Run:
                 cc.SimpleMove(transform.forward * psc.GetInputVertical() * runSpeed);
                 break;
 
-            case PlayerStateController.PlayerState.Rotate:
+            case PState.Rotate:
                 transform.Rotate(transform.up * psc.GetInputHorizontal() * rotateSpeed);
                 break;
 
-            case PlayerStateController.PlayerState.AimFish:
-
-                //ゲージがまだ表示されてなければゲージの表示
-                if(!gc.IsGaugeEnabled())
-                {
-                    //狙っている魚のコントロールを得る(魚を動けない状態に遷移させる)
-                    aimFishCtrl = default(FishController);
-                    var aimFish = ac.GetAimObject();
-                    if(aimFish != null)
-                        aimFishCtrl = aimFish.gameObject.GetComponent<FishController>();
-
-                    //付近に魚がいた場合はその魚の値を参照してゲージのパーミットを設定する
-                    //それ以外なら適当に設定する
-                    if(aimFishCtrl != null)
-                        gc.SetPermitXAndWidth(Random.Range(0f, GaugeController.MAX - aimFishCtrl.PermitWidth), aimFishCtrl.PermitWidth);
-                    else
-                        gc.SetPermitXAndWidth(Random.Range(0f, GaugeController.HALF), Random.Range(20f, 100f));
-
-                    //ゲージの有効化
-                    gc.GaugeEnabled(true);
-                }
-
-                //"Hunt"ボタンを押したら
-                if(Input.GetButton("Hunt"))
-                {
-                    //ゲージの非表示
-                    Invoke("GaugeUnenabled", 1f);
-                    //魚が近くにいてたら
-                    if(aimFishCtrl != null)
-                    {
-                        //ゲージが許可範囲内で停止したらアニメーションして魚にメッセージを送る
-                        if(gc.IsGaugePermit())
-                            Debug.Log("お魚が取れました");
-                        else
-                            Debug.Log("お魚を取れませんでした");
-                    }
-                    else
-                        Debug.Log("お魚が近くにいませんでした");
-
-                    //Idle状態に戻す処理
-                    psc.EndAimFishState();
-                    //しばらくAimFish状態になれなくなる処理
-                    psc.ResetUpdateCounterForAimToAim();
-                }
-                else
-                    //ゲージを動かす("Hunt"ボタンがまだ押されていなかった場合)
-                    gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
+            case PState.AimFish:
+                AimingProc();
                 break;
 
             default:
                 break;
         }
 
-        //重力処理
+        GravityProc();
+    }
+
+    /// <summary>
+    /// AimFish状態中での処理
+    /// </summary>
+    private void AimingProc()
+    {
+        if(psc.IsState(PState.AimFish))
+        {
+            //AimFish遷移初回時のみ呼び出される
+            if(!gc.IsGaugeEnabled())
+            {
+                SetAimFishCtrl();
+                SetPermitZone(aimFishCtrl);
+
+                //ゲージの有効化
+                gc.GaugeEnabled(true);
+            }
+
+            //ゲージを動かす処理
+            if(!Input.GetButton("Hunt"))
+                gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
+            //Hunt時の処理
+            else
+            {
+                //ゲージの無効化
+                Invoke("GaugeUnenabled", 1f);
+                //魚が近くにいたら
+                if(aimFishCtrl != null)
+                {
+                    if(gc.IsGaugePermit())
+                        Debug.Log("お魚が取れました");
+                    else
+                        Debug.Log("お魚を取れませんでした");
+                }
+                else
+                    Debug.Log("お魚が近くにいませんでした");
+
+                //Idle状態に戻す処理
+                psc.EndAimFishState();
+                //しばらくAimFish状態になれなくなる処理
+                psc.ResetUpdateCounterForAimToAim();
+            }
+        }
+    }
+
+    /// <summary>
+    /// AimFish状態でのみ作用する
+    /// 指定したFishControllerを参照してゲージのパーミットを設定
+    /// 引数がnullなら適当な値を設定する
+    /// </summary>
+    /// <param name="aimFishCtrl"></param>
+    private void SetPermitZone(FishController aimFishCtrl)
+    {
+        if(psc.IsState(PState.AimFish))
+            if(aimFishCtrl != null)
+                gc.SetPermitXAndWidth(Random.Range(0f, GaugeController.MAX - aimFishCtrl.PermitWidth), aimFishCtrl.PermitWidth);
+            else
+                gc.SetPermitXAndWidth(Random.Range(0f, GaugeController.HALF), Random.Range(20f, 100f));
+    }
+
+    /// <summary>
+    ///狙っている魚のコントロールを得る
+    /// </summary>
+    private void SetAimFishCtrl()
+    {
+        aimFishCtrl = default(FishController);
+        var aimFish = ac.GetAimObject();
+        if(aimFish != null)
+            aimFishCtrl = aimFish.gameObject.GetComponent<FishController>();
+    }
+
+    /// <summary>
+    /// 重力処理
+    /// </summary>
+    private void GravityProc()
+    {
         if(cc.isGrounded)
             snapGround = Vector3.down;
         else

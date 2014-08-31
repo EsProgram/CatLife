@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using PState = PlayerStateController.PlayerState;
 
 [RequireComponent(typeof(CharacterController))]
 public class FishController : MonoBehaviour
@@ -55,6 +56,7 @@ public class FishController : MonoBehaviour
         cc = GetComponent<CharacterController>();
         ac = FindObjectOfType<AimControl>();
 
+        //親を含めた子オブジェクトの全てのマテリアルを取得するための操作
         foreach(Transform child in transform)
         {
             if(child != null && child.renderer != null && child.renderer.material != null)
@@ -66,10 +68,8 @@ public class FishController : MonoBehaviour
     private void Update()
     {
         //狙っている魚は停止
-        if(psc.GetState() == PlayerStateController.PlayerState.AimFish && ac.CompareAimObject(this.gameObject))
-        {
+        if(psc.IsState(PState.AimFish) && ac.CompareAimObject(this.gameObject))
             aimedFlag = true;
-        }
         else
         {
             //既に狙われていたことがあった場合の処理
