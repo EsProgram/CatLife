@@ -35,7 +35,7 @@ public class AimCamera : MonoBehaviour
                 ChangeCameraTrigger.CurrentCamera.enabled = false;
             }
             //カメラ移動
-            if(Vector3.Distance(this.transform.position, destination.transform.position) > 0.1f)
+            if(Vector3.Distance(this.transform.position, destination.transform.position) > 0.01f)
             {
                 transform.LookAt(lookAtPos.transform.position);
                 transform.Translate((destination.transform.position - this.transform.position) * moveSpeed * Time.deltaTime, Space.World);
@@ -46,9 +46,9 @@ public class AimCamera : MonoBehaviour
         else if(!psc.IsState(PState.Hunt))
         {
             //前の位置にカメラを戻す
-            if(Vector3.Distance(this.transform.position, ChangeCameraTrigger.CurrentCamera.transform.position) > 0.1f)
+            if(Vector3.Distance(this.transform.position, ChangeCameraTrigger.CurrentCamera.transform.position) > 0.01f)
             {
-                transform.LookAt(ChangeCameraTrigger.CurrentCamera.transform.forward);
+                transform.rotation = ChangeCameraTrigger.CurrentCamera.transform.rotation;
                 transform.Translate((ChangeCameraTrigger.CurrentCamera.transform.position - this.transform.position) * moveSpeed * Time.deltaTime, Space.World);
             }
             //カメラの無効化/有効化
