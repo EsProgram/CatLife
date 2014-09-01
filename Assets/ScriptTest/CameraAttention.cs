@@ -24,8 +24,8 @@ public class CameraAttention : MonoBehaviour
             if(Vector3.Distance(this.transform.position, destination.transform.position) > 0.1f)
             {
                 //2通りの回転方法(速度あまり変化なかった。どっちでもあんまり変わんない)
-                transform.LookAt(Vector3.Lerp(this.transform.position, lookAtPos.transform.position, Time.time));
-                //transform.LookAt(LerpAngle(this.transform.rotation, lookAtPos.transform.rotation, Time.time));
+                transform.LookAt(Vector3.Lerp(this.transform.position, lookAtPos.transform.position, Mathf.Min(Time.time, 1)));
+                //transform.LookAt(LerpAngle(this.transform.rotation, lookAtPos.transform.rotation, Mathf.Min(Time.time, 1)));
 
                 //移動
                 transform.Translate((destination.transform.position - this.transform.position) * moveSpeed * Time.deltaTime);

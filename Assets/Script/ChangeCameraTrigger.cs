@@ -16,6 +16,15 @@ public class ChangeCameraTrigger : MonoBehaviour
     //現在有効なカメラ(最初はメインカメラにする)
     private static Camera currentCamera;
 
+    /// <summary>
+    /// 現在有効なカメラを取得する
+    /// </summary>
+    public static Camera CurrentCamera { get { return currentCamera; } }
+
+    private ChangeCameraTrigger()
+    {
+    }
+
     private void Start()
     {
         currentCamera = Camera.main;
