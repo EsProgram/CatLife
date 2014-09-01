@@ -20,6 +20,7 @@ public sealed class PlayerStateController
         Run,
         Rotate,
         AimFish,
+        Hunt,
         //Climb,
     }
 
@@ -74,14 +75,11 @@ public sealed class PlayerStateController
     }
 
     /// <summary>
-    /// AimFish状態での処理が終了したら呼び出す処理
     /// Idle状態に遷移する
     /// </summary>
-    public void EndAimFishState()
+    public void SetStateIdle()
     {
-        //他の状態の時に誤って呼ばれても副作用を起こさないようにする
-        if(ps == PlayerState.AimFish)
-            ps = PlayerState.Idle;
+        ps = PlayerState.Idle;
     }
 
     /// <summary>
@@ -100,6 +98,7 @@ public sealed class PlayerStateController
         JudgeStateRun();
         JudgeStateRotate();
         JudgeStateAimFish();
+        JudgeStateHunt();
 
         ++updateCounterForAimToAim;
     }
@@ -126,7 +125,7 @@ public sealed class PlayerStateController
     /// アップデート呼び出し数カウンタの値をリセットする
     /// このメソッドを呼び出すことでAimFish状態の連続遷移を防げる
     /// </summary>
-    public void ResetUpdateCounterForAimToAim()
+    public void DisabledAimCertainTime()
     {
         updateCounterForAimToAim = 0;
     }
@@ -191,5 +190,11 @@ public sealed class PlayerStateController
         {
             ps = PlayerState.AimFish;
         }
+    }
+
+    private void JudgeStateHunt()
+    {
+        if(Input.GetButton("Hunt") && IsState(PlayerState.AimFish))
+            ps = PlayerState.Hunt;
     }
 }

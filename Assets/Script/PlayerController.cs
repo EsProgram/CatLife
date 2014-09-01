@@ -81,11 +81,48 @@ public class PlayerController : MonoBehaviour
                 AimingProc();
                 break;
 
+            case PState.Hunt:
+                HuntProc();
+                break;
+
             default:
                 break;
         }
 
         GravityProc();
+    }
+
+    /// <summary>
+    /// Hunt時の処理
+    /// </summary>
+    private void HuntProc()
+    {
+        //ゲージの無効化
+        if(gc.IsGaugeEnabled())
+            Invoke("GaugeUnenabled", 1f);
+        //魚が近くにいた場合
+        if(aimFishCtrl != null)
+        {
+            //魚が取れた
+            if(gc.IsGaugePermit())
+            {
+                Debug.Log("お魚が取れました");
+                aimFishCtrl.IsCatched = true;
+            }
+            //魚が取れなかった
+            else
+            {
+                Debug.Log("お魚を取れませんでした");
+                aimFishCtrl.IsCatched = false;
+            }
+        }
+        else
+            Debug.Log("お魚が近くにいませんでした");
+
+        //Idle状態に戻す処理
+        psc.SetStateIdle();
+        //しばらくAimFish状態になれなくなる処理
+        psc.DisabledAimCertainTime();
     }
 
     /// <summary>
@@ -106,37 +143,7 @@ public class PlayerController : MonoBehaviour
             }
 
             //ゲージを動かす処理
-            if(!Input.GetButton("Hunt"))
-                gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
-            //Hunt時の処理
-            else
-            {
-                //ゲージの無効化
-                Invoke("GaugeUnenabled", 1f);
-                //魚が近くにいた場合
-                if(aimFishCtrl != null)
-                {
-                    //魚が取れた
-                    if(gc.IsGaugePermit())
-                    {
-                        Debug.Log("お魚が取れました");
-                        aimFishCtrl.IsCatched = true;
-                    }
-                    //魚が取れなかった
-                    else
-                    {
-                        Debug.Log("お魚を取れませんでした");
-                        aimFishCtrl.IsCatched = false;
-                    }
-                }
-                else
-                    Debug.Log("お魚が近くにいませんでした");
-
-                //Idle状態に戻す処理
-                psc.EndAimFishState();
-                //しばらくAimFish状態になれなくなる処理
-                psc.ResetUpdateCounterForAimToAim();
-            }
+            gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
         }
     }
 
