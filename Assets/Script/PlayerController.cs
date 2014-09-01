@@ -113,13 +113,21 @@ public class PlayerController : MonoBehaviour
             {
                 //ゲージの無効化
                 Invoke("GaugeUnenabled", 1f);
-                //魚が近くにいたら
+                //魚が近くにいた場合
                 if(aimFishCtrl != null)
                 {
+                    //魚が取れた
                     if(gc.IsGaugePermit())
+                    {
                         Debug.Log("お魚が取れました");
+                        aimFishCtrl.IsCatched = true;
+                    }
+                    //魚が取れなかった
                     else
+                    {
                         Debug.Log("お魚を取れませんでした");
+                        aimFishCtrl.IsCatched = false;
+                    }
                 }
                 else
                     Debug.Log("お魚が近くにいませんでした");

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
 using PState = PlayerStateController.PlayerState;
 
 [RequireComponent(typeof(CharacterController))]
@@ -45,6 +46,8 @@ public class FishController : MonoBehaviour
     /// </summary>
     public float PermitWidth { get { return permitWidth; } }
 
+    public bool IsCatched { private get; set; }
+
     private void Awake()
     {
         addCount = Random.Range(0, ADD_COUNT_MAX);
@@ -76,21 +79,20 @@ public class FishController : MonoBehaviour
             if(aimedFlag)
             {
                 //魚取りに成功した時の処理-----------------------------------------------------
-
+                if(IsCatched)
+                {
+                }
                 //魚取りに失敗した時の処理-----------------------------------------------------
-                //透明にしていく
-                if(materials.Any(m => m.color.a > 0))
-                    materials.ForEach(m => m.color -= alpha);
                 else
-                    Destroy(this.gameObject);
+                    TransParents();
             }
 
-            //moveFlagがtrueなら動く
-            //falseなら回転
-            if(moveFlag)
-                cc.SimpleMove(transform.forward * speed * Time.deltaTime);
-            else
-                transform.Rotate(transform.up * rotateAng * rotateDir / (FLAG_CHANGE_COUNT + addCount));
+            //移動処理
+            if(!IsCatched)
+                if(moveFlag)
+                    cc.SimpleMove(transform.forward * speed * Time.deltaTime);
+                else
+                    transform.Rotate(transform.up * rotateAng * rotateDir / (FLAG_CHANGE_COUNT + addCount));
         }
 
         //重力処理
@@ -133,5 +135,18 @@ public class FishController : MonoBehaviour
         //"Ground"と接触していたら強制的に回転方向を変更する
         if(hit.gameObject.tag == "Ground" && !groundTouchFlag)
             groundTouchFlag = true;
+    }
+
+    /// <summary>
+    /// 透明化する
+    /// 完全に透明だったらゲームオブジェクトを破棄する
+    /// </summary>
+    private void TransParents()
+    {
+        //透明にしていく
+        if(materials.Any(m => m.color.a > 0))
+            materials.ForEach(m => m.color -= alpha);
+        else
+            Destroy(this.gameObject);
     }
 }
