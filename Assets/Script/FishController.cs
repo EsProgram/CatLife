@@ -26,7 +26,6 @@ public class FishController : MonoBehaviour
     private bool aimedFlag;
     private Color alpha = new Color(0, 0, 0, 0.01f);
     private List<Material> materials = new List<Material>();
-    private bool isCatchedFirst = true;
 
     /*ゲージ関連*/
     [SerializeField]
@@ -48,7 +47,7 @@ public class FishController : MonoBehaviour
     /// </summary>
     public float PermitWidth { get { return permitWidth; } }
 
-    public bool IsCatched { private get; set; }
+    public bool IsCatched { get; set; }
 
     private void Awake()
     {
@@ -82,11 +81,9 @@ public class FishController : MonoBehaviour
                 //魚取りに成功した時の処理
                 if(IsCatched)
                 {
-                    CatchedFirstProc();
+                    //プレイヤーがOKボタンを押したら状態が変わる。魚を破棄する
                     if(!psc.IsState(PState.Hunt))
-                    {
-                        Destroy(this.gameObject);
-                    }
+                        TransParents();
                 }
                 //魚取りに失敗した時は透明化させる
                 else
@@ -154,18 +151,5 @@ public class FishController : MonoBehaviour
             materials.ForEach(m => m.color -= alpha);
         else
             Destroy(this.gameObject);
-    }
-
-    /// <summary>
-    /// キャッチされた最初の一回のみ呼ばれる
-    /// </summary>
-    private void CatchedFirstProc()
-    {
-        if(isCatchedFirst)
-        {
-            string formatname = this.name.Split('(').First();
-            Debug.Log(formatname + "がとれちゃった♪");
-            isCatchedFirst = false;
-        }
     }
 }

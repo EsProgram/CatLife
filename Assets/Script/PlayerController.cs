@@ -89,7 +89,7 @@ public class PlayerController : MonoBehaviour
                 break;
         }
 
-        GravityProc();
+        Gravity();
     }
 
     /// <summary>
@@ -119,10 +119,14 @@ public class PlayerController : MonoBehaviour
         else
             Debug.Log("お魚が近くにいませんでした");
 
-        //Idle状態に戻す処理
-        psc.SetStateIdle();
-        //しばらくAimFish状態になれなくなる処理
-        psc.DisabledAimCertainTime();
+        //Hunt状態を抜ける処理
+        if(aimFishCtrl == null || aimFishCtrl.IsCatched == false || Input.GetButton("OK"))
+        {
+            //Idle状態に戻す処理
+            psc.SetStateIdle();
+            //しばらくAimFish状態になれなくなる処理
+            psc.DisabledAimCertainTime();
+        }
     }
 
     /// <summary>
@@ -176,7 +180,7 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// 重力処理
     /// </summary>
-    private void GravityProc()
+    private void Gravity()
     {
         if(cc.isGrounded)
             snapGround = Vector3.down;
