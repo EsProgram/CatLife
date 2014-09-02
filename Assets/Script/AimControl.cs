@@ -15,11 +15,10 @@ public sealed class AimControl : MonoBehaviour
     private RaycastHit rch;
     private GameObject aimPtr;
     private PlayerStateController psc;
+    private float rayDistance = 0.1f;
 
     public string[] ignoreTag;//衝突判定を無視するゲームオブジェクトのタグを設定出来る
 
-    [SerializeField]
-    private float rayDistance = 0.1f;
     [SerializeField]
     private GameObject aimPointerPrefab;
 

@@ -40,8 +40,8 @@ public class AimCamera : MonoBehaviour
             //カメラ移動
             if(Vector3.Distance(this.transform.position, destination.transform.position) > 0.01f)
             {
-                transform.LookAt(lookAtPos.transform.position);
                 transform.Translate((destination.transform.position - this.transform.position) * moveSpeed * Time.deltaTime, Space.World);
+                transform.LookAt(lookAtPos.transform.position);
             }
             return;
         }

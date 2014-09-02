@@ -8,12 +8,12 @@ using UnityEngine;
 /// </summary>
 public class ManagedFishInstantiate : MonoBehaviour
 {
+    private ManagedWaterPlace managedWaterPlaces;
+
     public Fish[] fishesPrefab;
 
     [HideInInspector]
     public List<Fish> fishes = new List<Fish>();//現在ゲームシーンに存在する魚。AimTrigger付近にいるかを確かめる用
-
-    private ManagedWaterPlace managedWaterPlaces;
 
     /// <summary>
     /// デフォルトでアタッチされるオブジェクト以外のところで
@@ -72,7 +72,7 @@ public class ManagedFishInstantiate : MonoBehaviour
     private void Start()
     {
         //テスト生成
-        for(int i = 0; i < 15; ++i)
+        for(int i = 0; i < 3; ++i)
         {
             CreateFish(fishesPrefab[0], managedWaterPlaces.FindWithName("Mizuba1"));
             CreateFish(fishesPrefab[1], managedWaterPlaces.FindWithName("Mizuba1"));

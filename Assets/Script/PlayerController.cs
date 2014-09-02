@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     private AimControl ac;
     private Vector3 snapGround;//接地時に下方向に加える力
     private FishController aimFishCtrl;//AimFish時に狙っている魚のコントロールを格納する
-    private GameObject mouth = default(GameObject);//口
+    private GameObject mouth = default(GameObject);//口(位置情報を使う)
 
     public float walkSpeed;
     public float rotateSpeed;
