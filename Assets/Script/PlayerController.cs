@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     private AimControl ac;
     private Vector3 snapGround;//接地時に下方向に加える力
     private FishController aimFishCtrl;//AimFish時に狙っている魚のコントロールを格納する
+    private GameObject mouth = default(GameObject);//口
 
     public float walkSpeed;
     public float rotateSpeed;
@@ -39,6 +40,7 @@ public class PlayerController : MonoBehaviour
     {
         cc = GetComponent<CharacterController>();
         ac = FindObjectOfType<AimControl>();
+        mouth = GameObject.FindGameObjectWithTag("Mouth");
     }
 
     /// <summary>
@@ -108,6 +110,9 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.Log("お魚が取れました");
                 aimFishCtrl.IsCatched = true;
+                //魚を口元に移動
+                aimFishCtrl.gameObject.transform.position = mouth.transform.position;
+                aimFishCtrl.gameObject.transform.rotation = mouth.transform.rotation;
             }
             //魚が取れなかった
             else
