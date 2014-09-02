@@ -99,31 +99,33 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void HuntProc()
     {
-        //ゲージの無効化
-        if(gc.IsGaugeEnabled())
-            Invoke("GaugeUnenabled", 1f);
-        //魚が近くにいた場合
-        if(aimFishCtrl != null)
+        //Hunt初回のみ呼び出される
+        if(gc.IsGaugeEnabled() && !IsInvoking("GaugeUnenabled"))
         {
-            //魚が取れた
-            if(gc.IsGaugePermit())
+            //ゲージを非表示に
+            Invoke("GaugeUnenabled", 1f);
+            //魚が近くにいた場合
+            if(aimFishCtrl != null)
             {
-                Debug.Log("お魚が取れました");
-                aimFishCtrl.IsCatched = true;
-                //魚を口元に移動
-                aimFishCtrl.gameObject.transform.position = mouth.transform.position;
-                aimFishCtrl.gameObject.transform.rotation = mouth.transform.rotation;
+                //魚が取れた
+                if(gc.IsGaugePermit())
+                {
+                    PrintMessage.Add(aimFishCtrl.name + "が取れました！");
+                    aimFishCtrl.IsCatched = true;
+                    //魚を口元に移動
+                    aimFishCtrl.gameObject.transform.position = mouth.transform.position;
+                    aimFishCtrl.gameObject.transform.rotation = mouth.transform.rotation;
+                }
+                //魚が取れなかった
+                else
+                {
+                    PrintMessage.Add("お魚を逃したようです");
+                    aimFishCtrl.IsCatched = false;
+                }
             }
-            //魚が取れなかった
             else
-            {
-                Debug.Log("お魚を取れませんでした");
-                aimFishCtrl.IsCatched = false;
-            }
+                PrintMessage.Add("お魚が近くにいませんでした");
         }
-        else
-            Debug.Log("お魚が近くにいませんでした");
-
         //Hunt状態を抜ける処理
         if(aimFishCtrl == null || aimFishCtrl.IsCatched == false || Input.GetButton("OK"))
         {

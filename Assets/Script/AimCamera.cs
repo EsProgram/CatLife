@@ -51,8 +51,8 @@ public class AimCamera : MonoBehaviour
             //前の位置にカメラを戻す
             if(Vector3.Distance(this.transform.position, ChangeCameraTrigger.CurrentCamera.transform.position) > 0.01f)
             {
-                transform.rotation = ChangeCameraTrigger.CurrentCamera.transform.rotation;
                 transform.Translate((ChangeCameraTrigger.CurrentCamera.transform.position - this.transform.position) * moveSpeed * Time.deltaTime, Space.World);
+                transform.rotation = ChangeCameraTrigger.CurrentCamera.transform.rotation;
             }
             //カメラの無効化/有効化
             else
