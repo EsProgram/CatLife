@@ -21,7 +21,6 @@ public sealed class PlayerStateController
         Rotate,
         AimFish,
         Hunt,
-        //Climb,
     }
 
     private static PlayerStateController _singleton;//シングルトンオブジェクト
@@ -32,6 +31,8 @@ public sealed class PlayerStateController
     private PlayerState ps;//プレイヤーの現在の状態
     private float inputVartical;//縦移動の入力値
     private float inputHorizontal;//横カメラ移動の入力値
+    private bool inputAimFish;
+    private bool inputHunt;
     //Updateが呼び出される度にカウントする(状態遷移管理のためにリセットや取得を行う)
     //Updateはキャラクタースクリプト内のFixedUpdateで呼び出されるため一定の時間でカウントされる
     private uint updateCounterForAimToAim = 0;
@@ -87,20 +88,37 @@ public sealed class PlayerStateController
     /// </summary>
     public void Update()
     {
-        //ユーザーの入力を保存する
-        inputHorizontal = inputHV.x = Input.GetAxis("Horizontal");
-        inputVartical = inputHV.z = Input.GetAxis("Vertical");
+        //ユーザーの入力を更新
+        GetUserInput();
 
-        //ユーザーの入力から状態を決定する処理
-        JudgeStateIdle();
-        JudgeStateWalkForward();
-        JudgeStateWalkBack();
-        JudgeStateRun();
-        JudgeStateRotate();
-        JudgeStateAimFish();
-        JudgeStateHunt();
+        //現在の状態から遷移できる状態を判定する
+        if(!IsState(PlayerState.Hunt))
+        {
+            JudgeInputIdle();
+            JudgeInputWalkForward();
+            JudgeInputWalkBack();
+            JudgeInputRun();
+            JudgeInputRotate();
+            JudgeInputAimFish();
+        }
+        if(IsState(PlayerState.AimFish))
+            JudgeInputHunt();
 
         ++updateCounterForAimToAim;
+    }
+
+    /// <summary>
+    /// ユーザーからの入力を更新する
+    /// </summary>
+    private void GetUserInput()
+    {
+        inputHorizontal = inputHV.x = Input.GetAxis("Horizontal");
+        inputVartical = inputHV.z = Input.GetAxis("Vertical");
+        inputAimFish = IsState(PlayerState.AimFish) ? true : Input.GetButton("AimFish");
+        if(IsState(PlayerState.AimFish))
+            inputHunt = Input.GetButton("Hunt");
+        else
+            inputHunt = false;
     }
 
     /// <summary>
@@ -133,68 +151,71 @@ public sealed class PlayerStateController
     /// <summary>
     /// ユーザーの入力からIdle状態かどうか判定する
     /// </summary>
-    private void JudgeStateIdle()
+    private void JudgeInputIdle()
     {
-        //(ユーザによる縦入力がMOVE_SENSITIVITYより下かつAimFishでない)またはAimFishが終了しているならばIdle
-        if(Mathf.Abs(inputVartical) < MOVE_SENSITIVITY && ps != PlayerState.AimFish)
+        //(ユーザによる縦入力がMOVE_SENSITIVITYより下
+        if(Mathf.Abs(inputVartical) < MOVE_SENSITIVITY)
             ps = PlayerState.Idle;
     }
 
     /// <summary>
     /// ユーザーの入力からWalkForward状態かどうか判定する
     /// </summary>
-    private void JudgeStateWalkForward()
+    private void JudgeInputWalkForward()
     {
-        //ユーザーによる縦入力がMOVE_SENSITIVITY以上かつAimFishでないならばWalkForward
-        if(inputVartical >= MOVE_SENSITIVITY && ps != PlayerState.AimFish)
+        //ユーザーによる縦入力がMOVE_SENSITIVITY以上
+        if(inputVartical >= MOVE_SENSITIVITY)
             ps = PlayerState.WalkForward;
     }
 
     /// <summary>
     /// ユーザーの入力からWalkBack状態かどうか判定する
     /// </summary>
-    private void JudgeStateWalkBack()
+    private void JudgeInputWalkBack()
     {
-        //ユーザーによる縦入力が-MOVE_SENSITIVITY以下かつAimFishでないならばWalkBack
-        if(inputVartical <= -MOVE_SENSITIVITY && ps != PlayerState.AimFish)
+        //ユーザーによる縦入力が-MOVE_SENSITIVITY以下
+        if(inputVartical <= -MOVE_SENSITIVITY)
             ps = PlayerState.WalkBack;
     }
 
     /// <summary>
     /// ユーザーの入力からRun状態かどうか判定する
     /// </summary>
-    private void JudgeStateRun()
+    private void JudgeInputRun()
     {
-        //"Run"ボタンが押されているかつユーザーによって縦入力がMOVE_SENSITIVITY以上かつAimFishでないならばRun
-        if(Input.GetButton("Run") && inputVartical >= MOVE_SENSITIVITY && ps != PlayerState.AimFish)
+        //"Run"ボタンが押されているかつユーザーによって縦入力がMOVE_SENSITIVITY以上
+        if(Input.GetButton("Run") && inputVartical >= MOVE_SENSITIVITY)
             ps = PlayerState.Run;
     }
 
     /// <summary>
     /// ユーザーの入力からRotate状態かどうか判定する
     /// </summary>
-    private void JudgeStateRotate()
+    private void JudgeInputRotate()
     {
-        //ユーザーによる横入力の絶対値がMOVE_SENSITIVITY以上かつAimFishでないならRotate
-        if(Mathf.Abs(inputHorizontal) >= MOVE_SENSITIVITY && ps != PlayerState.AimFish)
+        //ユーザーによる横入力の絶対値がMOVE_SENSITIVITY以上
+        if(Mathf.Abs(inputHorizontal) >= MOVE_SENSITIVITY)
             ps = PlayerState.Rotate;
     }
 
     /// <summary>
     /// ユーザーの入力からAimFish状態かどうか判定する
     /// </summary>
-    private void JudgeStateAimFish()
+    private void JudgeInputAimFish()
     {
-        //"AimFish"ボタンが押されたかつアップデートカウンタの値が一定値より上ならAimFish
-        if(Input.GetButton("AimFish") && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM)
+        //"AimFish"ボタンが押されたかつアップデートカウンタの値が一定値より上
+        if(inputAimFish && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM)
         {
             ps = PlayerState.AimFish;
         }
     }
 
-    private void JudgeStateHunt()
+    /// <summary>
+    /// ユーザーからの入力がHunt状態かどうか判定する
+    /// </summary>
+    private void JudgeInputHunt()
     {
-        if(Input.GetButton("Hunt") && IsState(PlayerState.AimFish))
+        if(inputHunt)
             ps = PlayerState.Hunt;
     }
 }

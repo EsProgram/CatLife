@@ -18,8 +18,11 @@ public class AimCamera : MonoBehaviour
 
     private void Start()
     {
-        if(GetComponent<Camera>() == null)
+        if(!(GetComponent<Camera>() != null && this.tag == "AimCamera"))
+        {
+            Debug.LogError("AimCameraをアタッチするオブジェクトはカメラであり\"AimCamera\"タグを付与する必要があります");
             Destroy(this);
+        }
         this.camera.enabled = false;
     }
 

@@ -27,10 +27,6 @@ public sealed class AimControl : MonoBehaviour
         rch = Physics.SphereCastAll(transform.position, 1, transform.forward, rayDistance).FirstOrDefault(_ => !ignoreTag.Contains(_.collider.tag));
 
         aim = rch.collider != default(Collider) ? rch.collider.gameObject : null;
-        //////////////////////////////////////////////////////////////////////////
-        if(aim != null)
-            Debug.Log(aim.tag + "がレイによって取得されました");
-        //////////////////////////////////////////////////////////////////////////
     }
 
     /// <summary>

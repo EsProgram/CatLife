@@ -6,6 +6,7 @@ using UnityEngine;
 using PState = PlayerStateController.PlayerState;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(SphereCollider))]
 public class FishController : MonoBehaviour
 {
     public float speed;
@@ -25,6 +26,7 @@ public class FishController : MonoBehaviour
     private bool aimedFlag;
     private Color alpha = new Color(0, 0, 0, 0.01f);
     private List<Material> materials = new List<Material>();
+    private bool isCatchedFirst = true;
 
     /*ゲージ関連*/
     [SerializeField]
@@ -52,13 +54,6 @@ public class FishController : MonoBehaviour
     {
         addCount = Random.Range(0, ADD_COUNT_MAX);
         psc = PlayerStateController.GetInstance();
-    }
-
-    private void Start()
-    {
-        cc = GetComponent<CharacterController>();
-        ac = FindObjectOfType<AimControl>();
-
         //親を含めた子オブジェクトの全てのマテリアルを取得するための操作
         foreach(Transform child in transform)
         {
@@ -66,6 +61,12 @@ public class FishController : MonoBehaviour
                 foreach(Material mat in child.renderer.materials)
                     materials.Add(mat);
         }
+    }
+
+    private void Start()
+    {
+        cc = GetComponent<CharacterController>();
+        ac = FindObjectOfType<AimControl>();
     }
 
     private void Update()
@@ -78,11 +79,16 @@ public class FishController : MonoBehaviour
             //既に狙われていたことがあった場合の処理
             if(aimedFlag)
             {
-                //魚取りに成功した時の処理-----------------------------------------------------
+                //魚取りに成功した時の処理
                 if(IsCatched)
                 {
+                    CatchedFirstProc();
+                    if(!psc.IsState(PState.Hunt))
+                    {
+                        Destroy(this.gameObject);
+                    }
                 }
-                //魚取りに失敗した時の処理-----------------------------------------------------
+                //魚取りに失敗した時は透明化させる
                 else
                     TransParents();
             }
@@ -148,5 +154,18 @@ public class FishController : MonoBehaviour
             materials.ForEach(m => m.color -= alpha);
         else
             Destroy(this.gameObject);
+    }
+
+    /// <summary>
+    /// キャッチされた最初の一回のみ呼ばれる
+    /// </summary>
+    private void CatchedFirstProc()
+    {
+        if(isCatchedFirst)
+        {
+            string formatname = this.name.Split('(').First();
+            Debug.Log(formatname + "がとれちゃった♪");
+            isCatchedFirst = false;
+        }
     }
 }
