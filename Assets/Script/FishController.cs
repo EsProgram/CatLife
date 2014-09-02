@@ -106,6 +106,10 @@ public class FishController : MonoBehaviour
         cc.Move(Physics.gravity * Time.deltaTime + snapGround);
     }
 
+    /// <summary>
+    /// カウントのみで使用
+    /// 他の用途で無闇に使用しない
+    /// </summary>
     private void FixedUpdate()
     {
         //カウント
