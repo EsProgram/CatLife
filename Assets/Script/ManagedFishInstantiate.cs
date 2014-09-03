@@ -11,6 +11,7 @@ public class ManagedFishInstantiate : MonoBehaviour
     private ManagedWaterPlace managedWaterPlaces;
 
     public Fish[] fishesPrefab;
+    public int debugInstanceNum = 5;
 
     [HideInInspector]
     public List<Fish> fishes = new List<Fish>();//現在ゲームシーンに存在する魚。AimTrigger付近にいるかを確かめる用
@@ -72,7 +73,7 @@ public class ManagedFishInstantiate : MonoBehaviour
     private void Start()
     {
         //テスト生成
-        for(int i = 0; i < 3; ++i)
+        for(int i = 0; i < debugInstanceNum; ++i)
         {
             CreateFish(fishesPrefab[0], managedWaterPlaces.FindWithName("血の海"));
             CreateFish(fishesPrefab[1], managedWaterPlaces.FindWithName("血の海"));

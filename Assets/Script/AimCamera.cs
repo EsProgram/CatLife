@@ -46,7 +46,7 @@ public class AimCamera : MonoBehaviour
             return;
         }
         //Idle状態に戻ったら(Huntでなかったら)
-        else if(!psc.IsState(PState.Hunt))
+        else if(!psc.IsState(PState.HuntFish))
         {
             //前の位置にカメラを戻す
             if(Vector3.Distance(this.transform.position, ChangeCameraTrigger.CurrentCamera.transform.position) > 0.01f)

@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         //プレイヤーの状態を更新
-        psc.Update();
+        psc.UpdateState();
 
         //状態における処理
         switch(psc.GetState())
@@ -84,7 +84,7 @@ public class PlayerController : MonoBehaviour
                 AimingProc();
                 break;
 
-            case PState.Hunt:
+            case PState.HuntFish:
                 HuntProc();
                 break;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using PState = PlayerStateController.PlayerState;
 
 public class PrintMessage : MonoBehaviour
 {
@@ -12,7 +13,8 @@ public class PrintMessage : MonoBehaviour
     private bool upSwitch;//上から下までfalse/下から上までtrue
     private bool showFlag;//メッセージ表示フラグ
     private static Queue<string> messageQueue = new Queue<string>();
-    private string message;
+    private static string curMessage;//現在表示中のメッセージ
+    private PlayerStateController psc;
 
     [SerializeField]
     private int speed = 2;//メッセージの降下/上昇スピード
@@ -26,7 +28,8 @@ public class PrintMessage : MonoBehaviour
     /// <param name="message">追加するメッセージ</param>
     public static void Add(string message)
     {
-        if(!messageQueue.Contains(message))
+        //現在表示中のメッセージと同じでないかつ同じメッセージがメッセージキューに追加されていなければ
+        if(!messageQueue.Contains(message) && curMessage != message)
             messageQueue.Enqueue(message);
     }
 
@@ -36,6 +39,7 @@ public class PrintMessage : MonoBehaviour
 
     private void Awake()
     {
+        psc = PlayerStateController.GetInstance();
         Add("Welcome to CatLife!!");
     }
 
@@ -44,7 +48,7 @@ public class PrintMessage : MonoBehaviour
         //今メッセージ処理をしていなければキューを処理
         if(!showFlag && messageQueue.Count > 0)
         {
-            message = messageQueue.Dequeue();
+            curMessage = messageQueue.Dequeue();
             showFlag = true;
             count = 0;
             stayCount = 0;
@@ -63,18 +67,21 @@ public class PrintMessage : MonoBehaviour
             if(upSwitch)
                 ++stayCount;
 
-            //上に上がる処理
-            if(upSwitch && count > -HEIGHT && stayCount > STAY_TIME)
+            //上に上がる処理(Hunt時は上がらないようにする)
+            if(upSwitch && count > -HEIGHT && stayCount > STAY_TIME && !psc.IsState(PState.HuntFish))
                 count -= speed;
             //上がりきったら
             if(upSwitch && count <= -HEIGHT)
+            {
                 showFlag = false;
+                curMessage = string.Empty;
+            }
         }
     }
 
     private void OnGUI()
     {
         if(showFlag)
-            GUI.TextField(new Rect(Screen.width / 4, count - HEIGHT, Screen.width * 2 / 4, HEIGHT), message);
+            GUI.TextField(new Rect(Screen.width / 4, count - HEIGHT, Screen.width * 2 / 4, HEIGHT), curMessage);
     }
 }

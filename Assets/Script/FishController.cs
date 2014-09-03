@@ -82,7 +82,7 @@ public class FishController : MonoBehaviour
                 if(IsCatched)
                 {
                     //プレイヤーがOKボタンを押したら状態が変わる。魚を破棄する
-                    if(!psc.IsState(PState.Hunt))
+                    if(!psc.IsState(PState.HuntFish))
                         TransParents();
                 }
                 //魚取りに失敗した時は透明化させる

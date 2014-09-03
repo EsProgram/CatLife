@@ -28,21 +28,21 @@ public class GarbageBehaviour : MonoBehaviour
         //今後それぞれの条件で色々付け足していく予定なので気にしない
 
         //ゴミが狙われていたら
-        if(!psc.IsState(PState.AimFish | PState.Hunt))
-            if(ac.CompareAimObject(this.gameObject))
+        if(!psc.IsState(PState.AimFish | PState.HuntFish) && ac.CompareAimObject(this.gameObject))
+        {
+            //OKボタンが押されたら
+            if(psc.GetInputOK())
             {
-                //OKボタンが押されたら
-                if(psc.GetInputOK())
+                //初回の探索だったら
+                if(!isLooked)
                 {
-                    //初回の探索だったら
-                    if(!isLooked)
-                    {
-                        PrintMessage.Add("ゴミから食べ物を見つけた");
-                        isLooked = true;
-                    }
-                    else
-                        PrintMessage.Add("何も見つからなかった");
+                    PrintMessage.Add("ゴミから食べ物を見つけた");
+                    isLooked = true;
                 }
+                //2回目以降は何も見つからないようにする
+                else
+                    PrintMessage.Add("何も見つからなかった");
             }
+        }
     }
 }

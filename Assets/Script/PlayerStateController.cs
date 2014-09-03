@@ -14,14 +14,14 @@ public sealed class PlayerStateController
     [System.Flags, System.Serializable]
     public enum PlayerState
     {
-        None = 0x00,
-        Idle = 0x01,
-        WalkForward = 0x02,
-        WalkBack = 0x04,
-        Run = 0x08,
-        Rotate = 0x10,
-        AimFish = 0x20,
-        Hunt = 0x40,
+        None = 0x0000,
+        Idle = 0x0001,
+        WalkForward = 0x0002,
+        WalkBack = 0x0004,
+        Run = 0x0008,
+        Rotate = 0x0010,
+        AimFish = 0x0020,
+        HuntFish = 0x0040,
     }
 
     private static PlayerStateController _singleton;//シングルトンオブジェクト
@@ -38,6 +38,7 @@ public sealed class PlayerStateController
     //Updateが呼び出される度にカウントする(状態遷移管理のためにリセットや取得を行う)
     //Updateはキャラクタースクリプト内のFixedUpdateで呼び出されるため一定の時間でカウントされる
     private uint updateCounterForAimToAim = 0;
+    private AimControl ac;
 
     /// <summary>
     /// プライベートコンストラクタ
@@ -45,6 +46,7 @@ public sealed class PlayerStateController
     /// </summary>
     {
         ps = PlayerState.Idle;
+        ac = GameObject.FindObjectOfType<AimControl>();
     }
 
     /// <summary>
@@ -90,13 +92,13 @@ public sealed class PlayerStateController
     /// <summary>
     /// ユーザーの入力によるプレイヤーの状態をアップデートする
     /// </summary>
-    public void Update()
+    public void UpdateState()
     {
         //ユーザーの入力を更新
         GetUserInput();
 
         //現在の状態から遷移できる状態を判定する
-        if(!IsState(PlayerState.Hunt))
+        if(!IsState(PlayerState.HuntFish))
         {
             JudgeInputIdle();
             JudgeInputWalkForward();
@@ -106,7 +108,7 @@ public sealed class PlayerStateController
             JudgeInputAimFish();
         }
         if(IsState(PlayerState.AimFish))
-            JudgeInputHunt();
+            JudgeInputHuntFish();
 
         ++updateCounterForAimToAim;
     }
@@ -118,12 +120,12 @@ public sealed class PlayerStateController
     {
         inputHorizontal = inputHV.x = Input.GetAxis("Horizontal");
         inputVartical = inputHV.z = Input.GetAxis("Vertical");
-        inputAimFish = IsState(PlayerState.AimFish) ? true : Input.GetButtonDown("AimFish");
+        inputAimFish = IsState(PlayerState.AimFish) ? true : Input.GetButton("AimFish");
         if(IsState(PlayerState.AimFish))
-            inputHunt = Input.GetButtonDown("Hunt");
+            inputHunt = Input.GetButton("Hunt");
         else
             inputHunt = false;
-        inputOK = Input.GetButtonDown("OK");
+        inputOK = Input.GetButton("OK");
     }
 
     /// <summary>
@@ -217,19 +219,19 @@ public sealed class PlayerStateController
     /// </summary>
     private void JudgeInputAimFish()
     {
-        //"AimFish"ボタンが押されたかつアップデートカウンタの値が一定値より上
-        if(inputAimFish && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM)
+        //"AimFish"ボタンが押されたかつアップデートカウンタの値が一定値より上かつ魚を狙ってる
+        if(inputAimFish && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM && ac.CompareAimObjectTag("Fish"))
         {
             ps = PlayerState.AimFish;
         }
     }
 
     /// <summary>
-    /// ユーザーからの入力がHunt状態かどうか判定する
+    /// ユーザーからの入力がHuntFish状態かどうか判定する
     /// </summary>
-    private void JudgeInputHunt()
+    private void JudgeInputHuntFish()
     {
         if(inputHunt)
-            ps = PlayerState.Hunt;
+            ps = PlayerState.HuntFish;
     }
 }

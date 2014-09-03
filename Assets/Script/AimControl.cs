@@ -60,12 +60,12 @@ public sealed class AimControl : MonoBehaviour
     /// </summary>
     private void SwitchAimPtr()
     {
-        if(aim != null && !psc.IsState(PState.Hunt))
+        if(aim != null && !psc.IsState(PState.HuntFish))
         {
             aimPtr.SetActive(true);
             aimPtr.transform.position = aim.gameObject.transform.position + Vector3.up * 2;
         }
-        else if(aim == null || psc.IsState(PState.Hunt))
+        else if(aim == null || psc.IsState(PState.HuntFish))
             aimPtr.SetActive(false);
     }
 
@@ -90,11 +90,28 @@ public sealed class AimControl : MonoBehaviour
     {
         if(aim == null)
             return string.Empty;
-        return aim.gameObject.tag;
+        return aim.tag;
     }
 
+    /// <summary>
+    /// 指定したオブジェクトと現在狙ってるオブジェクトが等しいか判定する
+    /// </summary>
+    /// <param name="target">調べたいゲームオブジェクト</param>
+    /// <returns></returns>
     public bool CompareAimObject(GameObject target)
     {
         return ReferenceEquals(aim, target);
+    }
+
+    /// <summary>
+    /// 指定したタグをもつオブジェクトが狙われているかどうかを返す
+    /// 狙っているオブジェクトがなければ常にfalseを返す
+    /// </summary>
+    /// <param name="tag">調べたいタグ</param>
+    /// <returns></returns>
+    public bool CompareAimObjectTag(string tag)
+    {
+        string buf = GetAimObjecctTag();
+        return buf != string.Empty ? buf == tag : false;
     }
 }
