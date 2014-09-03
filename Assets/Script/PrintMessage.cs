@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class PrintMessage : MonoBehaviour
 {
-    private const int HEIGHT = 20;
+    private const int HEIGHT = 20;//メッセージ枠の高さ
+    private const int STAY_TIME = 60;//下で留まるフレーム数
     private int stayCount;
     private int count;
     private bool upSwitch;//上から下までfalse/下から上までtrue
@@ -14,11 +15,19 @@ public class PrintMessage : MonoBehaviour
     private string message;
 
     [SerializeField]
-    private int speed = 2;
+    private int speed = 2;//メッセージの降下/上昇スピード
+    [SerializeField]
+    private int down = Screen.height / 5;//どこまで降下するか
 
+    /// <summary>
+    /// メッセージキューにメッセージを追加する
+    /// 現在キューの中に同じメッセージが含まれていた場合は自動的に省略される
+    /// </summary>
+    /// <param name="message">追加するメッセージ</param>
     public static void Add(string message)
     {
-        messageQueue.Enqueue(message);
+        if(!messageQueue.Contains(message))
+            messageQueue.Enqueue(message);
     }
 
     private PrintMessage()
@@ -44,10 +53,10 @@ public class PrintMessage : MonoBehaviour
         if(showFlag)
         {
             //下に下がる処理
-            if(count < 100 && !upSwitch)
+            if(count < down && !upSwitch)
                 count += speed;
             //下がりきったらupSwitchを入れる
-            else if(count >= 100)
+            else if(count >= down)
                 upSwitch = true;
 
             //しばらく停止する処理
@@ -55,7 +64,7 @@ public class PrintMessage : MonoBehaviour
                 ++stayCount;
 
             //上に上がる処理
-            if(upSwitch && count > -HEIGHT && stayCount > 60)
+            if(upSwitch && count > -HEIGHT && stayCount > STAY_TIME)
                 count -= speed;
             //上がりきったら
             if(upSwitch && count <= -HEIGHT)

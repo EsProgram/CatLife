@@ -21,6 +21,8 @@ public sealed class AimControl : MonoBehaviour
     [SerializeField]
     private GameObject aimPointerPrefab;
     [SerializeField]
+    private float rayRadius = 1;//レイの半径
+    [SerializeField]
     private float rayDistance = 1;//レイの飛距離
 
     private AimControl()
@@ -42,10 +44,10 @@ public sealed class AimControl : MonoBehaviour
 
     private void Update()
     {
-        Debug.DrawRay(transform.position, transform.forward, Color.yellow);
         //レイによってヒットしたオブジェクトの情報を得る
         if(!psc.IsState(PState.AimFish))//狙っている状態の時は特別で、他のオブジェクトを参照しないようにする
-            rch = Physics.SphereCastAll(transform.position, 1, transform.forward, rayDistance).FirstOrDefault(_ => !ignoreTag.Contains(_.collider.tag));
+            rch = Physics.SphereCastAll(transform.position, rayRadius, transform.forward, rayDistance)
+                         .FirstOrDefault(_ => !ignoreTag.Contains(_.collider.tag));
 
         aim = rch.collider != null ? rch.collider.gameObject : null;
 
@@ -54,7 +56,7 @@ public sealed class AimControl : MonoBehaviour
     }
 
     /// <summary>
-    /// 条件でAimPointerの表示/非表示を切り替える
+    /// 特定の条件でAimPointerの表示/非表示を切り替える
     /// </summary>
     private void SwitchAimPtr()
     {

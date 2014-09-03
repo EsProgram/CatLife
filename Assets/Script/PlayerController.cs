@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 using PState = PlayerStateController.PlayerState;
@@ -110,7 +111,7 @@ public class PlayerController : MonoBehaviour
                 //魚が取れた
                 if(gc.IsGaugePermit())
                 {
-                    PrintMessage.Add(aimFishCtrl.name + "が取れました！");
+                    PrintMessage.Add(aimFishCtrl.name.Split('(').FirstOrDefault() + "が取れました！");
                     aimFishCtrl.IsCatched = true;
                     //魚を口元に移動
                     aimFishCtrl.gameObject.transform.position = mouth.transform.position;
@@ -126,8 +127,8 @@ public class PlayerController : MonoBehaviour
             else
                 PrintMessage.Add("お魚が近くにいませんでした");
         }
-        //Hunt状態を抜ける処理
-        if(aimFishCtrl == null || aimFishCtrl.IsCatched == false || Input.GetButton("OK"))
+        //Hunt状態を抜ける処理(OKボタンが押される)
+        if(aimFishCtrl == null || aimFishCtrl.IsCatched == false || psc.GetInputOK())
         {
             //Idle状態に戻す処理
             psc.SetStateIdle();

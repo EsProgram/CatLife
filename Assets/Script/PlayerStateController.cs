@@ -4,23 +4,24 @@ using UnityEngine;
 
 /// <summary>
 /// プレイヤーの状態を管理するシングルトンクラス
-/// 状態遷移もコントロールする
+/// 状態遷移・入力情報もコントロールする
 /// </summary>
 public sealed class PlayerStateController
 {
     /// <summary>
     /// プレイヤーの状態を表す列挙型
     /// </summary>
+    [System.Flags, System.Serializable]
     public enum PlayerState
     {
-        None,
-        Idle,
-        WalkForward,
-        WalkBack,
-        Run,
-        Rotate,
-        AimFish,
-        Hunt,
+        None = 0x00,
+        Idle = 0x01,
+        WalkForward = 0x02,
+        WalkBack = 0x04,
+        Run = 0x08,
+        Rotate = 0x10,
+        AimFish = 0x20,
+        Hunt = 0x40,
     }
 
     private static PlayerStateController _singleton;//シングルトンオブジェクト
@@ -33,6 +34,7 @@ public sealed class PlayerStateController
     private float inputHorizontal;//横カメラ移動の入力値
     private bool inputAimFish;
     private bool inputHunt;
+    private bool inputOK;
     //Updateが呼び出される度にカウントする(状態遷移管理のためにリセットや取得を行う)
     //Updateはキャラクタースクリプト内のFixedUpdateで呼び出されるため一定の時間でカウントされる
     private uint updateCounterForAimToAim = 0;
@@ -72,7 +74,9 @@ public sealed class PlayerStateController
     /// <returns></returns>
     public bool IsState(PlayerState ps)
     {
-        return GetState() == ps;
+        if((GetState() & ps) != PlayerState.None)
+            return true;
+        return false;
     }
 
     /// <summary>
@@ -114,11 +118,21 @@ public sealed class PlayerStateController
     {
         inputHorizontal = inputHV.x = Input.GetAxis("Horizontal");
         inputVartical = inputHV.z = Input.GetAxis("Vertical");
-        inputAimFish = IsState(PlayerState.AimFish) ? true : Input.GetButton("AimFish");
+        inputAimFish = IsState(PlayerState.AimFish) ? true : Input.GetButtonDown("AimFish");
         if(IsState(PlayerState.AimFish))
-            inputHunt = Input.GetButton("Hunt");
+            inputHunt = Input.GetButtonDown("Hunt");
         else
             inputHunt = false;
+        inputOK = Input.GetButtonDown("OK");
+    }
+
+    /// <summary>
+    /// OKボタンが押されたかどうかを返す
+    /// </summary>
+    /// <returns></returns>
+    public bool GetInputOK()
+    {
+        return inputOK;
     }
 
     /// <summary>
