@@ -120,7 +120,7 @@ public sealed class PlayerStateController
     {
         inputHorizontal = inputHV.x = Input.GetAxis("Horizontal");
         inputVartical = inputHV.z = Input.GetAxis("Vertical");
-        inputAimFish = IsState(PlayerState.AimFish) ? true : Input.GetButton("AimFish");
+        inputAimFish = IsState(PlayerState.AimFish) ? true : Input.GetButton("Aim");
         if(IsState(PlayerState.AimFish))
             inputHunt = Input.GetButton("Hunt");
         else
@@ -219,7 +219,7 @@ public sealed class PlayerStateController
     /// </summary>
     private void JudgeInputAimFish()
     {
-        //"AimFish"ボタンが押されたかつアップデートカウンタの値が一定値より上かつ魚を狙ってる
+        //"Aim"ボタンが押されたかつアップデートカウンタの値が一定値より上かつ魚を狙ってる
         if(inputAimFish && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM && ac.CompareAimObjectTag("Fish"))
         {
             ps = PlayerState.AimFish;
