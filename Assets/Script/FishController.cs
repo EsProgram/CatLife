@@ -9,6 +9,8 @@ using PState = PlayerStateController.PlayerState;
 [RequireComponent(typeof(SphereCollider))]
 public sealed class FishController : CreatureController
 {
+    private bool aimedFlag;//狙われているかどうか
+
     /*ゲージ関連*/
     [SerializeField]
     private float gaugeSpeed = default(float);
@@ -37,10 +39,10 @@ public sealed class FishController : CreatureController
     protected override void Awake()
     {
         base.Awake();
-        bigChangeDirectionTag.Add("Ground");
+        DirectionBigChangeTag.Add("Ground");
     }
 
-    protected internal override void Move()
+    protected override void Actions()
     {
         //狙っている魚は停止
         if(psc.IsState(PState.AimFish) && ac.CompareAimObject(this.gameObject))
@@ -64,10 +66,12 @@ public sealed class FishController : CreatureController
 
             //移動処理
             if(!IsCatched)
-                if(moveFlag)
-                    cc.SimpleMove(transform.forward * moveSpeed * Time.deltaTime);
+                //動ける状態なら動く
+                if(IsMovePossible)
+                    CharactorMove();
+                //そうでなければ回転処理
                 else
-                    transform.Rotate(transform.up * rotateAng * rotateDir / (FLAG_CHANGE_COUNT + addCount));
+                    CharactorRotate();
         }
     }
 }

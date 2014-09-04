@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// ゲーム内での生物の動きを抽象化したクラス
-/// このクラスを派生した生物のクラスではMoveメソッドをoverrideして
+/// このクラスを派生した生物のクラスではActionsメソッドをoverrideして
 /// 動きをその生物特有のものにするだけで良い(あとはゲーム上固有の動きをしてくれる)
 /// 回転角度、回転方向などは勝手にアップデートしてくれるので気にせず派生クラスで使える
 ///
@@ -21,21 +21,25 @@ public abstract class CreatureController : MonoBehaviour
     private List<Material> materials = new List<Material>();
     private bool bigTurnFlag;//指定したタグをもつオブジェクトに接触しているかどうか
     private int ADD_COUNT_MAX = 30;//追加カウント数のMAX
+    private int addCount;//追加カウント数(乱数)
+    private float rotateAng;//１回の回転行動で回転する角度
+    private float rotateDir;//回転方向(左回転、右回転)
+    private bool moveFlag;//動く状態かをあらわすフラグ
 
     protected AimControl ac;
     protected CharacterController cc;
     protected PlayerStateController psc;
-    protected int addCount;//追加カウント数(乱数)
-    protected bool moveFlag;//動く状態で歩かないかをあらわすフラグ
-    protected float rotateAng;//１回の回転行動で回転する角度
-    protected float rotateDir;//回転方向(左回転、右回転)
-    protected bool aimedFlag;//狙われているかどうか
     protected const int FLAG_CHANGE_COUNT = 30;//moveFlagが反転する基本カウント数
 
     [SerializeField]
     protected float moveSpeed = 100;
     [SerializeField]
-    protected List<string> bigChangeDirectionTag = new List<string>();//接触したら大きく方向転換したいオブジェクトのタグを指定する
+    protected List<string> DirectionBigChangeTag = new List<string>();//接触したら大きく方向転換したいオブジェクトのタグを指定する
+
+    /// <summary>
+    /// 動ける状態であるかどうかを返す
+    /// </summary>
+    protected bool IsMovePossible { get { return moveFlag; } }
 
     protected virtual void Awake()
     {
@@ -79,7 +83,7 @@ public abstract class CreatureController : MonoBehaviour
     private void Update()
     {
         //動きの処理
-        Move();
+        Actions();
         //重力処理
         Gravity();
     }
@@ -127,7 +131,7 @@ public abstract class CreatureController : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         //指定したタグのオブジェクトに接触したら大きく旋回するようにフラグを立てる
-        if(bigChangeDirectionTag.Contains(hit.gameObject.tag))
+        if(DirectionBigChangeTag.Contains(hit.gameObject.tag))
             bigTurnFlag = true;
     }
 
@@ -148,5 +152,21 @@ public abstract class CreatureController : MonoBehaviour
     /// 生物の動き
     /// 回転行動以外で、どのように動かすかを定義できる
     /// </summary>
-    protected internal abstract void Move();
+    protected abstract void Actions();
+
+    /// <summary>
+    /// 生物の移動をサポートする
+    /// </summary>
+    protected void CharactorMove()
+    {
+        cc.SimpleMove(transform.forward * moveSpeed * Time.deltaTime);
+    }
+
+    /// <summary>
+    /// 生物の回転をサポートする
+    /// </summary>
+    protected void CharactorRotate()
+    {
+        transform.Rotate(transform.up * rotateAng * rotateDir / (FLAG_CHANGE_COUNT + addCount));
+    }
 }

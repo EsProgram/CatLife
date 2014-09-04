@@ -3,8 +3,11 @@ using UnityEngine;
 
 public class MouseController : CreatureController
 {
-    protected internal override void Move()
+    protected override void Actions()
     {
-        throw new System.NotImplementedException();
+        if(IsMovePossible)
+            CharactorMove();
+        else
+            CharactorRotate();
     }
 }
