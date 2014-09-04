@@ -65,7 +65,7 @@ public sealed class FishController : CreatureController
             //移動処理
             if(!IsCatched)
                 if(moveFlag)
-                    cc.SimpleMove(transform.forward * moveSpeed);
+                    cc.SimpleMove(transform.forward * moveSpeed * Time.deltaTime);
                 else
                     transform.Rotate(transform.up * rotateAng * rotateDir / (FLAG_CHANGE_COUNT + addCount));
         }

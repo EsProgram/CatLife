@@ -33,7 +33,7 @@ public abstract class CreatureController : MonoBehaviour
     protected const int FLAG_CHANGE_COUNT = 30;//moveFlagが反転する基本カウント数
 
     [SerializeField]
-    protected float moveSpeed = 10;
+    protected float moveSpeed = 100;
     [SerializeField]
     protected List<string> bigChangeDirectionTag = new List<string>();//接触したら大きく方向転換したいオブジェクトのタグを指定する
 
@@ -86,7 +86,6 @@ public abstract class CreatureController : MonoBehaviour
 
     /// <summary>
     /// カウントのみで使用
-    /// 他の用途で無闇に使用しない
     /// </summary>
     private void FixedUpdate()
     {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[System.Obsolete("使用しないでください")]
 public class FadeoutAndDelete : MonoBehaviour
 {
     private Color fadeout = new Color(0, 0, 0, 0.01f);

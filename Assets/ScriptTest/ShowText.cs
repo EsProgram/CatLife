@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[System.Obsolete("使用しないでください")]
 public class ShowText : MonoBehaviour
 {
     private string fname = "太刀魚";

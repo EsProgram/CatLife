@@ -1,6 +1,10 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// テスト用。使用しない。
+/// </summary>
+[System.Obsolete("使用しないでください")]
 public class CreatureBehaviour : MonoBehaviour
 {
     // Use this for initialization

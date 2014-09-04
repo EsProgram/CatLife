@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[System.Obsolete("使用しないでください")]
 public class CameraAttention : MonoBehaviour
 {
     public GameObject destination;

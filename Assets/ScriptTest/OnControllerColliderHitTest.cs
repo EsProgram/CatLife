@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[System.Obsolete("使用しないでください")]
 public class OnControllerColliderHitTest : MonoBehaviour
 {
     // Use this for initialization
