@@ -19,7 +19,7 @@ public sealed class AimControl : MonoBehaviour
     public string[] ignoreTag;//衝突判定を無視するゲームオブジェクトのタグを設定出来る
 
     [SerializeField]
-    private GameObject aimPointerPrefab;
+    private GameObject aimPointerPrefab = default(GameObject);
     [SerializeField]
     private float rayRadius = 1;//レイの半径
     [SerializeField]

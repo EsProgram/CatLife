@@ -52,11 +52,14 @@ public class PlayerController : MonoBehaviour
         gc.GaugeEnabled(false);
     }
 
+    private void Update()
+    {
+        //プレイヤーの状態の更新
+        psc.UpdateState();
+    }
+
     private void FixedUpdate()
     {
-        //プレイヤーの状態を更新
-        psc.UpdateState();
-
         //状態における処理
         switch(psc.GetState())
         {

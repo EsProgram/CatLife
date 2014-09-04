@@ -125,7 +125,7 @@ public sealed class PlayerStateController
             inputHunt = Input.GetButton("Hunt");
         else
             inputHunt = false;
-        inputOK = Input.GetButton("OK");
+        inputOK = Input.GetButtonDown("OK");
     }
 
     /// <summary>
