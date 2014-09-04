@@ -32,7 +32,7 @@ public sealed class PlayerStateController
     private PlayerState ps;//プレイヤーの現在の状態
     private float inputVartical;//縦移動の入力値
     private float inputHorizontal;//横カメラ移動の入力値
-    private bool inputAimFish;
+    private bool inputAim;
     private bool inputHunt;
     private bool inputOK;
     //Updateが呼び出される度にカウントする(状態遷移管理のためにリセットや取得を行う)
@@ -120,12 +120,30 @@ public sealed class PlayerStateController
     {
         inputHorizontal = inputHV.x = Input.GetAxis("Horizontal");
         inputVartical = inputHV.z = Input.GetAxis("Vertical");
-        inputAimFish = IsState(PlayerState.AimFish) ? true : Input.GetButton("Aim");
+        inputAim = IsState(PlayerState.AimFish) ? true : Input.GetButtonDown("Aim");
         if(IsState(PlayerState.AimFish))
-            inputHunt = Input.GetButton("Hunt");
+            inputHunt = Input.GetButtonDown("Hunt");
         else
             inputHunt = false;
         inputOK = Input.GetButtonDown("OK");
+    }
+
+    /// <summary>
+    /// Huntボタンが押されたかどうかを返す
+    /// </summary>
+    /// <returns></returns>
+    public bool GetInputHunt()
+    {
+        return inputHunt;
+    }
+
+    /// <summary>
+    /// Aimボタンが押されたかどうかを返す
+    /// </summary>
+    /// <returns></returns>
+    public bool GetInputAim()
+    {
+        return inputAim;
     }
 
     /// <summary>
@@ -220,7 +238,7 @@ public sealed class PlayerStateController
     private void JudgeInputAimFish()
     {
         //"Aim"ボタンが押されたかつアップデートカウンタの値が一定値より上かつ魚を狙ってる
-        if(inputAimFish && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM && ac.CompareAimObjectTag("Fish"))
+        if(inputAim && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM && ac.CompareAimObjectTag("Fish"))
         {
             ps = PlayerState.AimFish;
         }
