@@ -13,8 +13,10 @@ public class PlayerController : MonoBehaviour
     private AimControl ac;
     private RendaController rc;
     private Vector3 snapGround;//接地時に下方向に加える力
-    private FishController aimFishCtrl;//AimFish時に狙っている魚のコントロールを格納する
-    private GameObject mouth = default(GameObject);//口(位置情報を使う)
+    private FishController aimFishCtrl;//AimFish時に狙っている魚のコントロール
+    private MouseController aimMouseCtrl;//AimMouse時に狙っているネズミのコントロール
+    private int countAimTime;//ネズミを狙っている間カウントする
+    private GameObject mouth;//口(位置情報を使う)
 
     public float walkSpeed;
     public float rotateSpeed;
@@ -117,15 +119,25 @@ public class PlayerController : MonoBehaviour
         //AimMouse初回時のみ呼ばれるはずの処理
         if(!rc.IsEnabled())
         {
+            //ネズミのコントロールを得る
+            SetAimCtrl<MouseController>(out aimMouseCtrl);
             rc.SetEnabled(true);
+            countAimTime = 0;
             //ネズミから必要な連打数や連打可能時間を取得
         }
-        //ボタンが押されていたらカウント
-        if(psc.GetInputAim())
+        //Huntボタンが押されたらカウント
+        if(psc.GetInputHunt())
             rc.Increment();
-        //カウントが必要数以上になったらHuntMouseに移行
-        if(rc.GetCount() > 10)
+        //カウントが必要数以上になったらHuntMouseに移行出来る
+        if(rc.GetCount() > aimMouseCtrl.RequireCount)
             psc.SetHuntMouse();
+        //時間が過ぎれば逃げられてしまう
+        if(countAimTime > aimMouseCtrl.LimitTime)
+        {
+            psc.SetStateIdle();
+            rc.SetEnabled(false);
+        }
+        ++countAimTime;
     }
 
     /// <summary>
@@ -178,9 +190,8 @@ public class PlayerController : MonoBehaviour
         //AimFish遷移初回時のみ呼び出される
         if(!gc.IsEnabled())
         {
-            SetAimFishCtrl();
+            SetAimCtrl<FishController>(out aimFishCtrl);
             SetPermitZone(aimFishCtrl);
-
             //ゲージの有効化
             gc.SetEnabled(true);
         }
@@ -205,14 +216,16 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    ///狙っている魚のコントロールを得る
+    ///狙っている生物のコントロールを得る
     /// </summary>
-    private void SetAimFishCtrl()
+    private void SetAimCtrl<T>(out T aimCtrl) where T : CreatureController
     {
-        aimFishCtrl = default(FishController);
+        aimCtrl = default(T);
         var aimFish = ac.GetAimObject();
         if(aimFish != null)
-            aimFishCtrl = aimFish.gameObject.GetComponent<FishController>();
+            aimCtrl = aimFish.gameObject.GetComponent<T>();
+        else
+            aimCtrl = null;
     }
 
     /// <summary>

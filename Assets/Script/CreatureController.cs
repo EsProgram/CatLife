@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using PState = PlayerStateController.PlayerState;
 
 /// <summary>
 /// ゲーム内での生物の動きを抽象化したクラス
@@ -25,6 +26,7 @@ public abstract class CreatureController : MonoBehaviour
     private float rotateAng;//１回の回転行動で回転する角度
     private float rotateDir;//回転方向(左回転、右回転)
     private bool moveFlag;//動く状態かをあらわすフラグ
+    private bool aimedFlag;//狙われているかどうか
 
     protected AimControl ac;
     protected CharacterController cc;
@@ -35,6 +37,11 @@ public abstract class CreatureController : MonoBehaviour
     protected float moveSpeed = 100;
     [SerializeField]
     protected List<string> DirectionBigChangeTag = new List<string>();//接触したら大きく方向転換したいオブジェクトのタグを指定する
+
+    /// <summary>
+    /// 捕獲されたかどうか
+    /// </summary>
+    public bool IsCatched { get; set; }
 
     /// <summary>
     /// 動ける状態であるかどうかを返す
@@ -149,10 +156,40 @@ public abstract class CreatureController : MonoBehaviour
     }
 
     /// <summary>
-    /// 生物の動き
-    /// 回転行動以外で、どのように動かすかを定義できる
+    /// 生物の動きを定義する
     /// </summary>
-    protected abstract void Actions();
+    private void Actions()
+    {
+        //狙っている生物は停止
+        if(psc.IsState(PState.Aim) && ac.CompareAimObject(this.gameObject))
+            aimedFlag = true;
+        else
+        {
+            //移動処理
+            if(!IsCatched)
+                //動ける状態なら動く
+                if(IsMovePossible)
+                    CharactorMove();
+                //そうでなければ回転処理
+                else
+                    CharactorRotate();
+
+            //既に狙われていたことがあった場合の処理
+            if(aimedFlag)
+            {
+                //狩に成功した時の処理
+                if(IsCatched)
+                {
+                    //プレイヤーがOKボタンを押したら
+                    if(!psc.IsState(PState.Hunt))
+                        TransParents();
+                }
+                //狩に失敗した時は透明化させる
+                else
+                    TransParents();
+            }
+        }
+    }
 
     /// <summary>
     /// 生物の移動をサポートする
