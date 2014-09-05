@@ -28,7 +28,7 @@ public class GarbageBehaviour : MonoBehaviour
         //今後それぞれの条件で色々付け足していく予定なので気にしない
 
         //ゴミが狙われていたら
-        if(!psc.IsState(PState.AimFish | PState.HuntFish) && ac.CompareAimObject(this.gameObject))
+        if(!psc.IsState(PState.Aim | PState.Hunt) && ac.CompareAimObject(this.gameObject))
         {
             //Aimボタンが押されたら
             if(psc.GetInputAim())

@@ -84,11 +84,19 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case PState.AimFish:
-                AimingProc();
+                AimFishProc();
                 break;
 
             case PState.HuntFish:
-                HuntProc();
+                HuntFishProc();
+                break;
+
+            case PState.AimMouse:
+                Debug.Log("AimMouse");
+                break;
+
+            case PState.HuntMouse:
+                Debug.Log("HuntMouse");
                 break;
 
             default:
@@ -99,9 +107,9 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Hunt時の処理
+    /// HuntFish時の処理
     /// </summary>
-    private void HuntProc()
+    private void HuntFishProc()
     {
         //Hunt初回のみ呼び出される
         if(gc.IsGaugeEnabled() && !IsInvoking("GaugeUnenabled"))
@@ -143,7 +151,7 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// AimFish状態中での処理
     /// </summary>
-    private void AimingProc()
+    private void AimFishProc()
     {
         if(psc.IsState(PState.AimFish))
         {

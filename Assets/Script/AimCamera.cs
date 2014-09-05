@@ -29,7 +29,7 @@ public class AimCamera : MonoBehaviour
     private void Update()
     {
         //AimStateなら
-        if(psc.IsState(PState.AimFish))
+        if(psc.IsState(PState.Aim))
         {
             //カメラを無効化/有効化
             if(!this.camera.enabled)
@@ -46,7 +46,7 @@ public class AimCamera : MonoBehaviour
             return;
         }
         //Idle状態に戻ったら(Huntでなかったら)
-        else if(!psc.IsState(PState.HuntFish))
+        else if(!psc.IsState(PState.Hunt))
         {
             //前の位置にカメラを戻す
             if(Vector3.Distance(this.transform.position, ChangeCameraTrigger.CurrentCamera.transform.position) > 0.01f)

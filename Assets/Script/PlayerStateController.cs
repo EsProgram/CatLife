@@ -22,19 +22,23 @@ public sealed class PlayerStateController
         Rotate = 0x0010,
         AimFish = 0x0020,
         HuntFish = 0x0040,
+        AimMouse = 0x0080,
+        HuntMouse = 0x0100,
+        Aim = AimFish | AimMouse,
+        Hunt = HuntFish | HuntMouse,
     }
 
     private static PlayerStateController _singleton;//シングルトンオブジェクト
 
     private const float MOVE_SENSITIVITY = 0.1f;//ユーザーの移動入力がこの値以上なら移動状態に遷移できる
     private const uint WAIT_TIME_FOR_AIM_TO_AIM = 90U;//AimFish状態から次のAimFish状態に遷移可能になるまでのUpdate呼び出し回数
-    private Vector3 inputHV = Vector3.zero;//プレイヤーの縦・横入力値をまとめたもの(y軸は常に0)
     private PlayerState ps;//プレイヤーの現在の状態
     private float inputVartical;//縦移動の入力値
     private float inputHorizontal;//横カメラ移動の入力値
     private bool inputAim;
     private bool inputHunt;
     private bool inputOK;
+    private bool inputRun;
     //Updateが呼び出される度にカウントする(状態遷移管理のためにリセットや取得を行う)
     //Updateはキャラクタースクリプト内のFixedUpdateで呼び出されるため一定の時間でカウントされる
     private uint updateCounterForAimToAim = 0;
@@ -96,9 +100,8 @@ public sealed class PlayerStateController
     {
         //ユーザーの入力を更新
         GetUserInput();
-
         //現在の状態から遷移できる状態を判定する
-        if(!IsState(PlayerState.HuntFish))
+        if(!IsState(PlayerState.Hunt))
         {
             JudgeInputIdle();
             JudgeInputWalkForward();
@@ -106,9 +109,12 @@ public sealed class PlayerStateController
             JudgeInputRun();
             JudgeInputRotate();
             JudgeInputAimFish();
+            JudgeInputAimMouse();
         }
         if(IsState(PlayerState.AimFish))
             JudgeInputHuntFish();
+        if(IsState(PlayerState.AimMouse))
+            JudgeInputHuntMouse();
 
         ++updateCounterForAimToAim;
     }
@@ -118,10 +124,11 @@ public sealed class PlayerStateController
     /// </summary>
     private void GetUserInput()
     {
-        inputHorizontal = inputHV.x = Input.GetAxis("Horizontal");
-        inputVartical = inputHV.z = Input.GetAxis("Vertical");
-        inputAim = IsState(PlayerState.AimFish) ? true : Input.GetButtonDown("Aim");
-        if(IsState(PlayerState.AimFish))
+        inputHorizontal = Input.GetAxis("Horizontal");
+        inputVartical = Input.GetAxis("Vertical");
+        inputRun = Input.GetButton("Run");
+        inputAim = IsState(PlayerState.Aim) ? true : Input.GetButtonDown("Aim");
+        if(IsState(PlayerState.Aim))
             inputHunt = Input.GetButtonDown("Hunt");
         else
             inputHunt = false;
@@ -156,6 +163,15 @@ public sealed class PlayerStateController
     }
 
     /// <summary>
+    /// Runボタンが押されたかどうかを返す
+    /// </summary>
+    /// <returns></returns>
+    public bool GetInputRun()
+    {
+        return inputRun;
+    }
+
+    /// <summary>
     /// 最後に呼ばれたUpdateメソッドで取得したユーザーの垂直方向の入力値を得る
     /// </summary>
     /// <returns>垂直方向の入力値[0 ~ 1]</returns>
@@ -183,12 +199,25 @@ public sealed class PlayerStateController
     }
 
     /// <summary>
+    /// 指定したタグをもつオブジェクトがAim状態に推移できるかどうかを調べる
+    /// </summary>
+    /// <param name="tag">調べたいオブジェクトのタグ</param>
+    /// <returns></returns>
+    private bool IsAimCondition(string tag)
+    {
+        if(inputAim && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM && ac.CompareAimObjectTag(tag))
+            return true;
+        return false;
+    }
+
+    /// <summary>
     /// ユーザーの入力からIdle状態かどうか判定する
     /// </summary>
     private void JudgeInputIdle()
     {
-        //(ユーザによる縦入力がMOVE_SENSITIVITYより下
-        if(Mathf.Abs(inputVartical) < MOVE_SENSITIVITY)
+        //ユーザーによる入力がなければ
+        if(Mathf.Abs(inputVartical) < MOVE_SENSITIVITY && Mathf.Abs(inputHorizontal) >= MOVE_SENSITIVITY
+            && !inputRun && !inputAim && !inputHunt)
             ps = PlayerState.Idle;
     }
 
@@ -218,7 +247,7 @@ public sealed class PlayerStateController
     private void JudgeInputRun()
     {
         //"Run"ボタンが押されているかつユーザーによって縦入力がMOVE_SENSITIVITY以上
-        if(Input.GetButton("Run") && inputVartical >= MOVE_SENSITIVITY)
+        if(inputRun && inputVartical >= MOVE_SENSITIVITY)
             ps = PlayerState.Run;
     }
 
@@ -238,10 +267,8 @@ public sealed class PlayerStateController
     private void JudgeInputAimFish()
     {
         //"Aim"ボタンが押されたかつアップデートカウンタの値が一定値より上かつ魚を狙ってる
-        if(inputAim && updateCounterForAimToAim > WAIT_TIME_FOR_AIM_TO_AIM && ac.CompareAimObjectTag("Fish"))
-        {
+        if(IsAimCondition("Fish"))
             ps = PlayerState.AimFish;
-        }
     }
 
     /// <summary>
@@ -251,5 +278,23 @@ public sealed class PlayerStateController
     {
         if(inputHunt)
             ps = PlayerState.HuntFish;
+    }
+
+    /// <summary>
+    /// ユーザーからの入力がAimMouse状態かどうかを判定する
+    /// </summary>
+    private void JudgeInputAimMouse()
+    {
+        if(IsAimCondition("Mouse"))
+            ps = PlayerState.AimMouse;
+    }
+
+    /// <summary>
+    /// ユーザーからの入力がHuntMouse状態かどうかを判定する
+    /// </summary>
+    private void JudgeInputHuntMouse()
+    {
+        if(inputHunt)
+            ps = PlayerState.HuntMouse;
     }
 }

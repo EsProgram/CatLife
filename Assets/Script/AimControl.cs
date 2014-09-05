@@ -45,7 +45,7 @@ public sealed class AimControl : MonoBehaviour
     private void Update()
     {
         //レイによってヒットしたオブジェクトの情報を得る
-        if(!psc.IsState(PState.AimFish))//狙っている状態の時は特別で、他のオブジェクトを参照しないようにする
+        if(!psc.IsState(PState.Aim))//狙っている状態の時は特別で、他のオブジェクトを参照しないようにする
             rch = Physics.SphereCastAll(transform.position, rayRadius, transform.forward, rayDistance)
                          .FirstOrDefault(_ => !ignoreTag.Contains(_.collider.tag));
 
@@ -86,7 +86,7 @@ public sealed class AimControl : MonoBehaviour
     /// 狙っているゲームオブジェクトのタグを返す
     /// </summary>
     /// <returns></returns>
-    public string GetAimObjecctTag()
+    public string GetAimObjectTag()
     {
         if(aim == null)
             return string.Empty;
@@ -111,7 +111,7 @@ public sealed class AimControl : MonoBehaviour
     /// <returns></returns>
     public bool CompareAimObjectTag(string tag)
     {
-        string buf = GetAimObjecctTag();
+        string buf = GetAimObjectTag();
         return buf != string.Empty ? buf == tag : false;
     }
 }
