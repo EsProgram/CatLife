@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     private PlayerStateController psc;
     private GaugeController gc;
     private AimControl ac;
+    private RendaController rc;
     private Vector3 snapGround;//接地時に下方向に加える力
     private FishController aimFishCtrl;//AimFish時に狙っている魚のコントロールを格納する
     private GameObject mouth = default(GameObject);//口(位置情報を使う)
@@ -25,6 +26,8 @@ public class PlayerController : MonoBehaviour
     private GUITexture frame = default(GUITexture);//ゲージの枠
     [SerializeField]
     private GUITexture permit = default(GUITexture);//ゲージの許可範囲
+    [SerializeField]
+    private GUITexture renda = default(GUITexture);
 
     private PlayerController()
     {
@@ -33,8 +36,10 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         psc = PlayerStateController.GetInstance();
-        gc = GaugeController.CreateInstance(gauge, frame, permit);
-        gc.GaugeEnabled(false);
+        gc = GaugeController.GetInstance(gauge, frame, permit);
+        gc.SetEnabled(false);
+        rc = RendaController.GetInstance(renda);
+        rc.SetEnabled(false);
     }
 
     private void Start()
@@ -49,7 +54,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void GaugeUnenabled()
     {
-        gc.GaugeEnabled(false);
+        gc.SetEnabled(false);
     }
 
     private void Update()
@@ -92,11 +97,12 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case PState.AimMouse:
-                Debug.Log("AimMouse");
+                AimMouseProc();
                 break;
 
             case PState.HuntMouse:
-                Debug.Log("HuntMouse");
+                if(psc.GetInputHunt())
+                    Debug.Log("HuntMouse");
                 break;
 
             default:
@@ -106,21 +112,37 @@ public class PlayerController : MonoBehaviour
         Gravity();
     }
 
+    private void AimMouseProc()
+    {
+        //AimMouse初回時のみ呼ばれるはずの処理
+        if(!rc.IsEnabled())
+        {
+            rc.SetEnabled(true);
+            //ネズミから必要な連打数や連打可能時間を取得
+        }
+        //ボタンが押されていたらカウント
+        if(psc.GetInputAim())
+            rc.Increment();
+        //カウントが必要数以上になったらHuntMouseに移行
+        if(rc.GetCount() > 10)
+            psc.SetHuntMouse();
+    }
+
     /// <summary>
     /// HuntFish時の処理
     /// </summary>
     private void HuntFishProc()
     {
         //Hunt初回のみ呼び出される
-        if(gc.IsGaugeEnabled() && !IsInvoking("GaugeUnenabled"))
+        if(gc.IsEnabled() && !IsInvoking("GaugeUnenabled"))
         {
             //ゲージを非表示に
-            Invoke("GaugeUnenabled", 1f);
+            Invoke("GaugeUnenabled", 0.5f);
             //魚が近くにいた場合
             if(aimFishCtrl != null)
             {
                 //魚が取れた
-                if(gc.IsGaugePermit())
+                if(gc.IsPermit())
                 {
                     PrintMessage.Add(aimFishCtrl.name.Split('(').FirstOrDefault() + "が取れました！");
                     aimFishCtrl.IsCatched = true;
@@ -153,21 +175,18 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void AimFishProc()
     {
-        if(psc.IsState(PState.AimFish))
+        //AimFish遷移初回時のみ呼び出される
+        if(!gc.IsEnabled())
         {
-            //AimFish遷移初回時のみ呼び出される
-            if(!gc.IsGaugeEnabled())
-            {
-                SetAimFishCtrl();
-                SetPermitZone(aimFishCtrl);
+            SetAimFishCtrl();
+            SetPermitZone(aimFishCtrl);
 
-                //ゲージの有効化
-                gc.GaugeEnabled(true);
-            }
-
-            //ゲージを動かす処理
-            gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
+            //ゲージの有効化
+            gc.SetEnabled(true);
         }
+
+        //ゲージを動かす処理
+        gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
     }
 
     /// <summary>

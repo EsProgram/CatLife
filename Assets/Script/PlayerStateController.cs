@@ -33,6 +33,7 @@ public sealed class PlayerStateController
     private const float MOVE_SENSITIVITY = 0.1f;//ユーザーの移動入力がこの値以上なら移動状態に遷移できる
     private const uint WAIT_TIME_FOR_AIM_TO_AIM = 90U;//AimFish状態から次のAimFish状態に遷移可能になるまでのUpdate呼び出し回数
     private PlayerState ps;//プレイヤーの現在の状態
+    private bool setHuntMouseFlag;//HuntMouse状態に入れるかどうかを表すフラグ
     private float inputVartical;//縦移動の入力値
     private float inputHorizontal;//横カメラ移動の入力値
     private bool inputAim;
@@ -71,6 +72,11 @@ public sealed class PlayerStateController
     public PlayerState GetState()
     {
         return ps;
+    }
+
+    public void SetHuntMouse()
+    {
+        setHuntMouseFlag = true;
     }
 
     /// <summary>
@@ -128,7 +134,7 @@ public sealed class PlayerStateController
         inputVartical = Input.GetAxis("Vertical");
         inputRun = Input.GetButton("Run");
         inputAim = IsState(PlayerState.Aim) ? true : Input.GetButtonDown("Aim");
-        if(IsState(PlayerState.Aim))
+        if(IsState(PlayerState.Aim | PlayerState.Hunt))
             inputHunt = Input.GetButtonDown("Hunt");
         else
             inputHunt = false;
@@ -294,7 +300,10 @@ public sealed class PlayerStateController
     /// </summary>
     private void JudgeInputHuntMouse()
     {
-        if(inputHunt)
+        if(setHuntMouseFlag && inputHunt)
+        {
             ps = PlayerState.HuntMouse;
+            setHuntMouseFlag = false;
+        }
     }
 }

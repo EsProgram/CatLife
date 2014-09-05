@@ -21,21 +21,11 @@ public sealed class GaugeController
     /// <param name="frame">フレーム</param>
     /// <param name="permit">許可範囲</param>
     /// <returns></returns>
-    public static GaugeController CreateInstance(GUITexture gauge, GUITexture frame, GUITexture permit)
+    public static GaugeController GetInstance(GUITexture gauge, GUITexture frame, GUITexture permit)
     {
         if(_singleton == null)
             _singleton = new GaugeController(gauge, frame, permit);
         return _singleton;
-    }
-
-    /// <summary>
-    /// CreateInstanceによって生成されたシングルトンオブジェクトへの参照を返す
-    /// CreateInstanceによってインスタンスが生成されていない場合Nullを返す
-    /// </summary>
-    /// <returns>シングルトンオブジェクト</returns>
-    public static GaugeController GetInstance()
-    {
-        return _singleton ?? null;
     }
 
     /// <summary>
@@ -63,7 +53,7 @@ public sealed class GaugeController
     /// ゲージの表示非表示を設定する
     /// </summary>
     /// <param name="d">ゲージを表示するならtrue,非表示にするならfalse</param>
-    public void GaugeEnabled(bool d)
+    public void SetEnabled(bool d)
     {
         gauge.enabled = d;
         frame.enabled = d;
@@ -89,7 +79,7 @@ public sealed class GaugeController
     /// ゲージが許可範囲内ならtrue
     /// </summary>
     /// <returns>成否</returns>
-    public bool IsGaugePermit()
+    public bool IsPermit()
     {
         if(permit.pixelInset.x + HALF <= gaugeWidth && gaugeWidth <= permit.pixelInset.x + HALF + permit.pixelInset.width)
             return true;
@@ -125,7 +115,7 @@ public sealed class GaugeController
     /// ゲージが表示されているかどうかの真偽値を返す
     /// </summary>
     /// <returns>表示されていればtrue、それ以外ならfalse</returns>
-    public bool IsGaugeEnabled()
+    public bool IsEnabled()
     {
         if(gauge.enabled && frame.enabled && permit.enabled)
             return true;
