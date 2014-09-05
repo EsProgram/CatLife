@@ -68,7 +68,7 @@ public class PrintMessage : MonoBehaviour
                 ++stayCount;
 
             //上に上がる処理(Hunt時は上がらないようにする)
-            if(upSwitch && count > -HEIGHT && stayCount > STAY_TIME && !psc.IsState(PState.HuntFish))
+            if(upSwitch && count > -HEIGHT && stayCount > STAY_TIME && !psc.IsState(PState.Hunt))
                 count -= speed;
             //上がりきったら
             if(upSwitch && count <= -HEIGHT)

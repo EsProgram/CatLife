@@ -5,10 +5,10 @@ using UnityEngine;
 using PState = PlayerStateController.PlayerState;
 
 /// <summary>
-/// ゲーム内での生物の動きを抽象化したクラス
-/// このクラスを派生した生物のクラスではActionsメソッドをoverrideして
-/// 動きをその生物特有のものにするだけで良い(あとはゲーム上固有の動きをしてくれる)
-/// 回転角度、回転方向などは勝手にアップデートしてくれるので気にせず派生クラスで使える
+/// ゲーム内での生物の動きを抽象化したクラスて
+/// 派生した生物のクラスは必要な固有のデータのみを保有していれば良い
+/// プレイヤーでは生物の動きを何も気にすることなく、
+/// 自身の動きを派生クラスのデータを使って定義すればいい
 ///
 /// インスペクターで接触方向転換タグを指定できる
 /// </summary>
@@ -53,7 +53,7 @@ public abstract class CreatureController : MonoBehaviour
         addCount = Random.Range(0, ADD_COUNT_MAX);
         psc = PlayerStateController.GetInstance();
         //親を含めた子オブジェクトの全てのマテリアルを取得するための操作
-        GetMaterials();
+        GetMaterials(transform);
     }
 
     protected virtual void Start()
@@ -63,12 +63,15 @@ public abstract class CreatureController : MonoBehaviour
     }
 
     /// <summary>
-    /// オブジェクトの持つマテリアルを取得
+    /// マテリアルを取得
+    /// Transformは自分自身と子の情報しか持たない(孫を知らない)ので
+    /// 再帰してすべてを取得している
     /// </summary>
-    private void GetMaterials()
+    private void GetMaterials(Transform parents)
     {
-        foreach(Transform child in transform)
+        foreach(Transform child in parents)
         {
+            GetMaterials(child);
             if(child != null && child.renderer != null && child.renderer.material != null)
                 foreach(Material mat in child.renderer.materials)
                     materials.Add(mat);
@@ -160,7 +163,7 @@ public abstract class CreatureController : MonoBehaviour
     /// </summary>
     private void Actions()
     {
-        //狙っている生物は停止
+        //狙われたらフラグを立てる
         if(psc.IsState(PState.Aim) && ac.CompareAimObject(this.gameObject))
             aimedFlag = true;
         else
@@ -174,7 +177,7 @@ public abstract class CreatureController : MonoBehaviour
                 else
                     CharactorRotate();
 
-            //既に狙われていたことがあった場合の処理
+            //狙われたことがあったら
             if(aimedFlag)
             {
                 //狩に成功した時の処理

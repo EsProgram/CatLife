@@ -59,6 +59,14 @@ public class PlayerController : MonoBehaviour
         gc.SetEnabled(false);
     }
 
+    /// <summary>
+    /// Invokeでの呼び出し用
+    /// </summary>
+    private void RendaUnenabled()
+    {
+        rc.SetEnabled(false);
+    }
+
     private void Update()
     {
         //プレイヤーの状態の更新
@@ -103,8 +111,7 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case PState.HuntMouse:
-                if(psc.GetInputHunt())
-                    Debug.Log("HuntMouse");
+                HuntMouseProc();
                 break;
 
             default:
@@ -112,6 +119,20 @@ public class PlayerController : MonoBehaviour
         }
 
         Gravity();
+    }
+
+    private void HuntMouseProc()
+    {
+        //初回のみ呼び出される
+        if(rc.IsEnabled() && !IsInvoking("RendaUnenabled"))
+        {
+            Invoke("RendaUnenabled", 0.5f);
+            MoveOnMouth(aimMouseCtrl);
+            PrintMessage.Add(aimMouseCtrl.name.Split('(').FirstOrDefault() + "が取れました");
+        }
+        //OKボタンが押されたら
+        if(psc.GetInputOK())
+            psc.SetStateIdle();
     }
 
     private void AimMouseProc()
@@ -128,14 +149,17 @@ public class PlayerController : MonoBehaviour
         //Huntボタンが押されたらカウント
         if(psc.GetInputHunt())
             rc.Increment();
-        //カウントが必要数以上になったらHuntMouseに移行出来る
+        //狩が成功したら
         if(rc.GetCount() > aimMouseCtrl.RequireCount)
+        {
+            aimMouseCtrl.IsCatched = true;
             psc.SetHuntMouse();
+        }
         //時間が過ぎれば逃げられてしまう
         if(countAimTime > aimMouseCtrl.LimitTime)
         {
             psc.SetStateIdle();
-            rc.SetEnabled(false);
+            PrintMessage.Add("逃げられてしまった...");
         }
         ++countAimTime;
     }
@@ -159,8 +183,7 @@ public class PlayerController : MonoBehaviour
                     PrintMessage.Add(aimFishCtrl.name.Split('(').FirstOrDefault() + "が取れました！");
                     aimFishCtrl.IsCatched = true;
                     //魚を口元に移動
-                    aimFishCtrl.gameObject.transform.position = mouth.transform.position;
-                    aimFishCtrl.gameObject.transform.rotation = mouth.transform.rotation;
+                    MoveOnMouth(aimFishCtrl);
                 }
                 //魚が取れなかった
                 else
@@ -198,6 +221,15 @@ public class PlayerController : MonoBehaviour
 
         //ゲージを動かす処理
         gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
+    }
+
+    /// <summary>
+    /// 指定した生物を口に移動する
+    /// </summary>
+    private void MoveOnMouth(CreatureController creature)
+    {
+        creature.gameObject.transform.position = mouth.transform.position;
+        creature.gameObject.transform.rotation = mouth.transform.rotation;
     }
 
     /// <summary>
