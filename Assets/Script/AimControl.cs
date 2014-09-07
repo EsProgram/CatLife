@@ -55,7 +55,7 @@ public sealed class AimControl : MonoBehaviour
         if(aim != null)
         {
             var creature = aim.GetComponent<CreatureController>();
-            if(creature.IsTransed())
+            if(creature != null && creature.IsTransed())
                 aim = null;
         }
 

@@ -16,4 +16,10 @@ public class MouseController : CreatureController
 
     //制限時間を返す
     public int LimitTime { get { return limitTime; } }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        DirectionBigChangeTag.Add("TheoreticalWall");
+    }
 }
