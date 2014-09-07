@@ -159,6 +159,7 @@ public class PlayerController : MonoBehaviour
         if(countAimTime > aimMouseCtrl.LimitTime)
         {
             psc.SetStateIdle();
+            Invoke("RendaUnenabled", 0.5f);
             PrintMessage.Add("逃げられてしまった...");
         }
         ++countAimTime;
