@@ -164,9 +164,6 @@ public class PlayerController : MonoBehaviour
         ++countAimTime;
     }
 
-    /// <summary>
-    /// HuntFish時の処理
-    /// </summary>
     private void HuntFishProc()
     {
         //Hunt初回のみ呼び出される
@@ -205,15 +202,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// AimFish状態中での処理
-    /// </summary>
     private void AimFishProc()
     {
         //AimFish遷移初回時のみ呼び出される
         if(!gc.IsEnabled())
         {
             SetAimCtrl<FishController>(out aimFishCtrl);
+
             SetPermitZone(aimFishCtrl);
             //ゲージの有効化
             gc.SetEnabled(true);

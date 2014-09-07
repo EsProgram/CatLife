@@ -26,7 +26,8 @@ public abstract class CreatureController : MonoBehaviour
     private float rotateAng;//１回の回転行動で回転する角度
     private float rotateDir;//回転方向(左回転、右回転)
     private bool moveFlag;//動く状態かをあらわすフラグ
-    private bool aimedFlag;//狙われているかどうか
+    private bool aimedFlag;//狙われていたことがあるかどうか
+    private bool isTrans;//透明化処理の実行中かどうか
 
     protected AimControl ac;
     protected CharacterController cc;
@@ -151,6 +152,9 @@ public abstract class CreatureController : MonoBehaviour
     /// </summary>
     protected void TransParents()
     {
+        if(!isTrans)
+            isTrans = true;
+
         //透明にしていく
         if(materials.Any(m => m.color.a > 0))
             materials.ForEach(m => m.color -= alpha);
@@ -208,5 +212,15 @@ public abstract class CreatureController : MonoBehaviour
     protected void CharactorRotate()
     {
         transform.Rotate(transform.up * rotateAng * rotateDir / (FLAG_CHANGE_COUNT + addCount));
+    }
+
+    /// <summary>
+    /// 透明化処理を実行したかどうかを返す
+    /// 既に狙ったオブジェクトかどうかを判定するのに使える
+    /// </summary>
+    /// <returns></returns>
+    public bool IsTransed()
+    {
+        return isTrans;
     }
 }

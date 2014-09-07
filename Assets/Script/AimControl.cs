@@ -51,6 +51,14 @@ public sealed class AimControl : MonoBehaviour
 
         aim = rch.collider != null ? rch.collider.gameObject : null;
 
+        //既に透明化されている生物だった場合は強制的にnullにする
+        if(aim != null)
+        {
+            var creature = aim.GetComponent<CreatureController>();
+            if(creature.IsTransed())
+                aim = null;
+        }
+
         //AimPointerの表示/非表示
         SwitchAimPtr();
     }
