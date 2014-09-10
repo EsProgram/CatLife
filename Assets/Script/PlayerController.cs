@@ -18,10 +18,12 @@ public class PlayerController : MonoBehaviour
     private int countAimTime;//ネズミを狙っている間カウントする
     private GameObject mouth;//口(位置情報を使う)
 
-    public float walkSpeed;
-    public float rotateSpeed;
-    public float runSpeed;
-
+    [SerializeField]
+    private float walkSpeed;
+    [SerializeField]
+    private float rotateSpeed;
+    [SerializeField]
+    private float runSpeed;
     [SerializeField]
     private GUITexture gauge = default(GUITexture);//ゲージ本体
     [SerializeField]
@@ -67,6 +69,16 @@ public class PlayerController : MonoBehaviour
         rc.SetEnabled(false);
     }
 
+    private void PlayerMove(float speed)
+    {
+        cc.SimpleMove(transform.forward * psc.GetInputVertical() * speed);
+    }
+
+    private void PlayerRotate()
+    {
+        transform.Rotate(transform.up * psc.GetInputHorizontal() * rotateSpeed);
+    }
+
     private void Update()
     {
         //プレイヤーの状態の更新
@@ -82,20 +94,26 @@ public class PlayerController : MonoBehaviour
                 //Idle処理
                 break;
 
-            case PState.WalkForward:
-                cc.SimpleMove(transform.forward * psc.GetInputVertical() * walkSpeed);
-                break;
-
-            case PState.WalkBack:
-                cc.SimpleMove(transform.forward * psc.GetInputVertical() * walkSpeed);
+            case PState.Walk:
+                PlayerMove(walkSpeed);
                 break;
 
             case PState.Run:
-                cc.SimpleMove(transform.forward * psc.GetInputVertical() * runSpeed);
+                PlayerMove(runSpeed);
                 break;
 
             case PState.Rotate:
-                transform.Rotate(transform.up * psc.GetInputHorizontal() * rotateSpeed);
+                PlayerRotate();
+                break;
+
+            case PState.WalkRotate:
+                PlayerMove(walkSpeed);
+                PlayerRotate();
+                break;
+
+            case PState.RunRotate:
+                PlayerMove(runSpeed);
+                PlayerRotate();
                 break;
 
             case PState.AimFish:

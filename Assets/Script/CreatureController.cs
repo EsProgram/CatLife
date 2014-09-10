@@ -182,7 +182,6 @@ public abstract class CreatureController : MonoBehaviour
 
             //狙われたことがあったら
             if(aimedFlag)
-            {
                 //狩に成功した時の処理
                 if(IsCatched)
                 {
@@ -193,7 +192,6 @@ public abstract class CreatureController : MonoBehaviour
                 //狩に失敗した時は透明化させる
                 else
                     TransParents();
-            }
         }
     }
 

@@ -45,8 +45,9 @@ public sealed class AimControl : MonoBehaviour
     private void Update()
     {
         //レイによってヒットしたオブジェクトの情報を得る
+        //レイヤーはデフォルトのものを指定
         if(!psc.IsState(PState.Aim))//狙っている状態の時は特別で、他のオブジェクトを参照しないようにする
-            rch = Physics.SphereCastAll(transform.position, rayRadius, transform.forward, rayDistance)
+            rch = Physics.SphereCastAll(transform.position, rayRadius, transform.forward, rayDistance, 1 << LayerMask.NameToLayer("Default"))
                          .FirstOrDefault(_ => !ignoreTag.Contains(_.collider.tag));
 
         aim = rch.collider != null ? rch.collider.gameObject : null;

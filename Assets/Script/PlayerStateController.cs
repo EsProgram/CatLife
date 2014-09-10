@@ -16,14 +16,15 @@ public sealed class PlayerStateController
     {
         None = 0x0000,
         Idle = 0x0001,
-        WalkForward = 0x0002,
-        WalkBack = 0x0004,
-        Run = 0x0008,
-        Rotate = 0x0010,
-        AimFish = 0x0020,
-        HuntFish = 0x0040,
-        AimMouse = 0x0080,
-        HuntMouse = 0x0100,
+        Walk = 0x0002,
+        Run = 0x0004,
+        Rotate = 0x0008,
+        WalkRotate = Walk | Rotate,
+        RunRotate = Run | Rotate,
+        AimFish = 0x0010,
+        HuntFish = 0x0020,
+        AimMouse = 0x0040,
+        HuntMouse = 0x0080,
         Aim = AimFish | AimMouse,
         Hunt = HuntFish | HuntMouse,
     }
@@ -110,10 +111,11 @@ public sealed class PlayerStateController
         if(!IsState(PlayerState.Hunt))
         {
             JudgeInputIdle();
-            JudgeInputWalkForward();
-            JudgeInputWalkBack();
+            JudgeInputWalk();
             JudgeInputRun();
             JudgeInputRotate();
+            JudgeInputWalkRotate();
+            JudgeInputRunRotate();
             JudgeInputAimFish();
             JudgeInputAimMouse();
         }
@@ -230,21 +232,11 @@ public sealed class PlayerStateController
     /// <summary>
     /// ユーザーの入力からWalkForward状態かどうか判定する
     /// </summary>
-    private void JudgeInputWalkForward()
+    private void JudgeInputWalk()
     {
         //ユーザーによる縦入力がMOVE_SENSITIVITY以上
-        if(inputVartical >= MOVE_SENSITIVITY)
-            ps = PlayerState.WalkForward;
-    }
-
-    /// <summary>
-    /// ユーザーの入力からWalkBack状態かどうか判定する
-    /// </summary>
-    private void JudgeInputWalkBack()
-    {
-        //ユーザーによる縦入力が-MOVE_SENSITIVITY以下
-        if(inputVartical <= -MOVE_SENSITIVITY)
-            ps = PlayerState.WalkBack;
+        if(Mathf.Abs(inputVartical) >= MOVE_SENSITIVITY)
+            ps = PlayerState.Walk;
     }
 
     /// <summary>
@@ -265,6 +257,21 @@ public sealed class PlayerStateController
         //ユーザーによる横入力の絶対値がMOVE_SENSITIVITY以上
         if(Mathf.Abs(inputHorizontal) >= MOVE_SENSITIVITY)
             ps = PlayerState.Rotate;
+    }
+
+    /// <summary>
+    /// ユーザーの入力からWalkRotate状態かどうか判定する
+    /// </summary>
+    private void JudgeInputWalkRotate()
+    {
+        if(Mathf.Abs(inputVartical) >= MOVE_SENSITIVITY && Mathf.Abs(inputHorizontal) >= MOVE_SENSITIVITY)
+            ps = PlayerState.WalkRotate;
+    }
+
+    private void JudgeInputRunRotate()
+    {
+        if(inputRun && inputVartical >= MOVE_SENSITIVITY && Mathf.Abs(inputHorizontal) >= MOVE_SENSITIVITY)
+            ps = PlayerState.RunRotate;
     }
 
     /// <summary>
