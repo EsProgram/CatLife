@@ -94,8 +94,10 @@ public abstract class CreatureController : MonoBehaviour
     {
         //動きの処理
         Actions();
-        //重力処理
-        Gravity();
+
+        if(!IsCatched)
+            //重力処理
+            Gravity();
     }
 
     /// <summary>
