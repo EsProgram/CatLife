@@ -108,7 +108,7 @@ public sealed class PlayerStateController
         //ユーザーの入力を更新
         GetUserInput();
         //現在の状態から遷移できる状態を判定する
-        if(!IsState(PlayerState.Hunt))
+        if(!IsState(PlayerState.Hunt | PlayerState.Aim))
         {
             JudgeInputIdle();
             JudgeInputWalk();
@@ -224,7 +224,7 @@ public sealed class PlayerStateController
     private void JudgeInputIdle()
     {
         //ユーザーによる入力がなければ
-        if(Mathf.Abs(inputVartical) < MOVE_SENSITIVITY && Mathf.Abs(inputHorizontal) >= MOVE_SENSITIVITY
+        if(Mathf.Abs(inputVartical) < MOVE_SENSITIVITY && Mathf.Abs(inputHorizontal) <= MOVE_SENSITIVITY
             && !inputRun && !inputAim && !inputHunt)
             ps = PlayerState.Idle;
     }

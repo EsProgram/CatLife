@@ -12,11 +12,11 @@ public class PlayerController : MonoBehaviour
     private GaugeController gc;
     private AimControl ac;
     private RendaController rc;
+    private Animator anim;
     private Vector3 snapGround;//接地時に下方向に加える力
     private FishController aimFishCtrl;//AimFish時に狙っている魚のコントロール
     private MouseController aimMouseCtrl;//AimMouse時に狙っているネズミのコントロール
     private int countAimTime;//ネズミを狙っている間カウントする
-    private GameObject mouth;//口(位置情報を使う)
 
     [SerializeField]
     private float walkSpeed;
@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour
     private float rotateSpeed;
     [SerializeField]
     private float runSpeed;
+    [SerializeField]
+    private GameObject mouth;//口(位置情報を使う)
     [SerializeField]
     private GUITexture gauge = default(GUITexture);//ゲージ本体
     [SerializeField]
@@ -50,7 +52,20 @@ public class PlayerController : MonoBehaviour
     {
         cc = GetComponent<CharacterController>();
         ac = FindObjectOfType<AimControl>();
-        mouth = GameObject.FindGameObjectWithTag("Mouth");
+        anim = GetComponent<Animator>();
+    }
+
+    private void OnCollisionWater()
+    {
+        Debug.Log("水しぶき/土埃エフェクトをつける(魚/ネズミ)");
+    }
+
+    private void OnHuntComplete()
+    {
+        if(aimFishCtrl != null && aimFishCtrl.IsCatched)
+            MoveOnMouth(aimFishCtrl);
+        else if(aimMouseCtrl != null && aimMouseCtrl.IsCatched)
+            MoveOnMouth(aimMouseCtrl);
     }
 
     /// <summary>
@@ -91,14 +106,16 @@ public class PlayerController : MonoBehaviour
         switch(psc.GetState())
         {
             case PState.Idle:
-                //Idle処理
+                SetAnimTrigger("IdleTrigger");
                 break;
 
             case PState.Walk:
+                SetAnimTrigger("WalkTrigger");
                 PlayerMove(walkSpeed);
                 break;
 
             case PState.Run:
+                SetAnimTrigger("RunTrigger");
                 PlayerMove(runSpeed);
                 break;
 
@@ -107,28 +124,34 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case PState.WalkRotate:
+                SetAnimTrigger("WalkTrigger");
                 PlayerMove(walkSpeed);
                 PlayerRotate();
                 break;
 
             case PState.RunRotate:
+                SetAnimTrigger("RunTrigger");
                 PlayerMove(runSpeed);
                 PlayerRotate();
                 break;
 
             case PState.AimFish:
+                SetAnimTrigger("AimTrigger");
                 AimFishProc();
                 break;
 
             case PState.HuntFish:
+                SetAnimTrigger("HuntTrigger");
                 HuntFishProc();
                 break;
 
             case PState.AimMouse:
+                SetAnimTrigger("AimTrigger");
                 AimMouseProc();
                 break;
 
             case PState.HuntMouse:
+                SetAnimTrigger("HuntTrigger");
                 HuntMouseProc();
                 break;
 
@@ -139,13 +162,22 @@ public class PlayerController : MonoBehaviour
         Gravity();
     }
 
+    /// <summary>
+    /// 指定した名前のアニメーショントリガーをセットする
+    /// </summary>
+    /// <param name="name"></param>
+    private void SetAnimTrigger(string name)
+    {
+        if(!anim.GetCurrentAnimatorStateInfo(0).IsName(name))
+            anim.SetTrigger(name);
+    }
+
     private void HuntMouseProc()
     {
-        //初回のみ呼び出される
+        //捕獲出来たら初回のみ呼び出される
         if(rc.IsEnabled() && !IsInvoking("RendaUnenabled"))
         {
             Invoke("RendaUnenabled", 0.5f);
-            MoveOnMouth(aimMouseCtrl);
             PrintMessage.Add(aimMouseCtrl.name.Split('(').FirstOrDefault() + "が取れました");
         }
         //OKボタンが押されたら
@@ -198,8 +230,6 @@ public class PlayerController : MonoBehaviour
                 {
                     PrintMessage.Add(aimFishCtrl.name.Split('(').FirstOrDefault() + "が取れました！");
                     aimFishCtrl.IsCatched = true;
-                    //魚を口元に移動
-                    MoveOnMouth(aimFishCtrl);
                 }
                 //魚が取れなかった
                 else
@@ -242,8 +272,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void MoveOnMouth(CreatureController creature)
     {
-        creature.gameObject.transform.position = mouth.transform.position;
         creature.gameObject.transform.rotation = mouth.transform.rotation;
+        creature.gameObject.transform.position = mouth.transform.position;
     }
 
     /// <summary>
