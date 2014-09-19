@@ -14,9 +14,10 @@ public class PlayerController : MonoBehaviour
     private RendaController rc;
     private Animator anim;
     private Vector3 snapGround;//接地時に下方向に加える力
-    private FishController aimFishCtrl;//AimFish時に狙っている魚のコントロール
-    private MouseController aimMouseCtrl;//AimMouse時に狙っているネズミのコントロール
+    private CreatureController aimCtrl;//AimFish時に狙っている魚のコントロール
+    //private MouseController aimMouseCtrl;//AimMouse時に狙っているネズミのコントロール
     private int countAimTime;//ネズミを狙っている間カウントする
+    private bool isHunting;//Hunt中かどうか
 
     [SerializeField]
     private float walkSpeed;
@@ -24,6 +25,8 @@ public class PlayerController : MonoBehaviour
     private float rotateSpeed;
     [SerializeField]
     private float runSpeed;
+    [SerializeField]
+    private GameObject catchEffect;//飛沫
     [SerializeField]
     private GameObject mouth;//口(位置情報を使う)
     [SerializeField]
@@ -57,15 +60,14 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionWater()
     {
-        Debug.Log("水しぶき/土埃エフェクトをつける(魚/ネズミ)");
+        Destroy(GameObject.Instantiate(catchEffect, aimCtrl.gameObject.transform.position + transform.forward, Quaternion.identity), 5);
     }
 
     private void OnHuntComplete()
     {
-        if(aimFishCtrl != null && aimFishCtrl.IsCatched)
-            MoveOnMouth(aimFishCtrl);
-        else if(aimMouseCtrl != null && aimMouseCtrl.IsCatched)
-            MoveOnMouth(aimMouseCtrl);
+        if(aimCtrl != null && aimCtrl.IsCatched)
+            MoveOnMouth(aimCtrl);
+        isHunting = false;
     }
 
     /// <summary>
@@ -177,11 +179,12 @@ public class PlayerController : MonoBehaviour
         //捕獲出来たら初回のみ呼び出される
         if(rc.IsEnabled() && !IsInvoking("RendaUnenabled"))
         {
+            isHunting = true;//Hunt中
             Invoke("RendaUnenabled", 0.5f);
-            PrintMessage.Add(aimMouseCtrl.name.Split('(').FirstOrDefault() + "が取れました");
+            PrintMessage.Add(aimCtrl.name.Split('(').FirstOrDefault() + "が取れました");
         }
-        //OKボタンが押されたら
-        if(psc.GetInputOK())
+        //OKボタンが押されたかつHuntモーションが終了したら
+        if(psc.GetInputOK() && !isHunting)
             psc.SetStateIdle();
     }
 
@@ -191,7 +194,7 @@ public class PlayerController : MonoBehaviour
         if(!rc.IsEnabled())
         {
             //ネズミのコントロールを得る
-            SetAimCtrl<MouseController>(out aimMouseCtrl);
+            SetAimCtrl<CreatureController>(out aimCtrl);
             rc.SetEnabled(true);
             countAimTime = 0;
             //ネズミから必要な連打数や連打可能時間を取得
@@ -200,13 +203,13 @@ public class PlayerController : MonoBehaviour
         if(psc.GetInputHunt())
             rc.Increment();
         //狩が成功したら
-        if(rc.GetCount() > aimMouseCtrl.RequireCount)
+        if(rc.GetCount() > ((MouseController)aimCtrl).RequireCount)
         {
-            aimMouseCtrl.IsCatched = true;
+            aimCtrl.IsCatched = true;
             psc.SetHuntMouse();
         }
         //時間が過ぎれば逃げられてしまう
-        if(countAimTime > aimMouseCtrl.LimitTime)
+        if(countAimTime > ((MouseController)aimCtrl).LimitTime)
         {
             psc.SetStateIdle();
             Invoke("RendaUnenabled", 0.5f);
@@ -220,29 +223,30 @@ public class PlayerController : MonoBehaviour
         //Hunt初回のみ呼び出される
         if(gc.IsEnabled() && !IsInvoking("GaugeUnenabled"))
         {
+            isHunting = true;
             //ゲージを非表示に
             Invoke("GaugeUnenabled", 0.5f);
             //魚が近くにいた場合
-            if(aimFishCtrl != null)
+            if(aimCtrl != null)
             {
                 //魚が取れた
                 if(gc.IsPermit())
                 {
-                    PrintMessage.Add(aimFishCtrl.name.Split('(').FirstOrDefault() + "が取れました！");
-                    aimFishCtrl.IsCatched = true;
+                    PrintMessage.Add(aimCtrl.name.Split('(').FirstOrDefault() + "が取れました！");
+                    aimCtrl.IsCatched = true;
                 }
                 //魚が取れなかった
                 else
                 {
                     PrintMessage.Add("お魚を逃したようです");
-                    aimFishCtrl.IsCatched = false;
+                    aimCtrl.IsCatched = false;
                 }
             }
             else
                 PrintMessage.Add("お魚が近くにいませんでした");
         }
         //Hunt状態を抜ける処理(OKボタンが押される)
-        if(aimFishCtrl == null || aimFishCtrl.IsCatched == false || psc.GetInputOK())
+        if(aimCtrl == null || aimCtrl.IsCatched == false || psc.GetInputOK() && !isHunting)
         {
             //Idle状態に戻す処理
             psc.SetStateIdle();
@@ -256,15 +260,15 @@ public class PlayerController : MonoBehaviour
         //AimFish遷移初回時のみ呼び出される
         if(!gc.IsEnabled())
         {
-            SetAimCtrl<FishController>(out aimFishCtrl);
+            SetAimCtrl<CreatureController>(out aimCtrl);
 
-            SetPermitZone(aimFishCtrl);
+            SetPermitZone((FishController)aimCtrl);
             //ゲージの有効化
             gc.SetEnabled(true);
         }
 
         //ゲージを動かす処理
-        gc.GaugeMove(aimFishCtrl != null ? aimFishCtrl.GaugeSpeed : 1f);
+        gc.GaugeMove(aimCtrl != null ? ((FishController)aimCtrl).GaugeSpeed : 1f);
     }
 
     /// <summary>

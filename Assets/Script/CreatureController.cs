@@ -17,7 +17,7 @@ public abstract class CreatureController : MonoBehaviour
 {
     private int updateCounter;//FixedUpdateにより加算されるカウンタ
     private Vector3 snapGround;
-    private Color alpha = new Color(0, 0, 0, 0.01f);
+    private Color alpha = new Color(0, 0, 0, 0.03f);
     private List<Material> materials = new List<Material>();
     private bool bigTurnFlag;//指定したタグをもつオブジェクトに接触しているかどうか
     private int ADD_COUNT_MAX = 30;//追加カウント数のMAX
