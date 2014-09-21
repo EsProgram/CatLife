@@ -8,10 +8,11 @@ using UnityEngine;
 /// </summary>
 public class ManagedFishInstantiate : MonoBehaviour
 {
-    private ManagedWaterPlace managedWaterPlaces;
-
+    //魚を生成する水場
+    [SerializeField]
+    private WaterPlace waterPlace;
+    public int tryInstanceNum = 5;
     public Fish[] fishesPrefab;
-    public int debugInstanceNum = 5;
 
     [HideInInspector]
     public List<Fish> fishes = new List<Fish>();//現在ゲームシーンに存在する魚。AimTrigger付近にいるかを確かめる用
@@ -54,8 +55,8 @@ public class ManagedFishInstantiate : MonoBehaviour
         //生成場所の計算
         Vector3 waterRange = waterPlace.gameObject.transform.lossyScale;
         waterRange.y = 0;
-        waterRange.x = Random.Range(-waterRange.x, waterRange.x) / 3;
-        waterRange.z = Random.Range(-waterRange.z, waterRange.z) / 3;
+        waterRange.x = Random.Range(-waterRange.x, waterRange.x) / 5;
+        waterRange.z = Random.Range(-waterRange.z, waterRange.z) / 5;
         //実体化
         Fish f = new Fish();
         f.fishPrefab = Instantiate(fish.gameObject,
@@ -65,18 +66,12 @@ public class ManagedFishInstantiate : MonoBehaviour
         fishes.Add(f);
     }
 
-    private void Awake()
-    {
-        managedWaterPlaces = FindObjectOfType<ManagedWaterPlace>();
-    }
-
     private void Start()
     {
-        //テスト生成
-        for(int i = 0; i < debugInstanceNum; ++i)
-        {
-            CreateFish(fishesPrefab[0], managedWaterPlaces.FindWithName("デバッグ池"));
-            CreateFish(fishesPrefab[1], managedWaterPlaces.FindWithName("デバッグ池"));
-        }
+        //魚生成
+        for(int i = 0; i < tryInstanceNum; ++i)
+            for(int j = 0; j < fishesPrefab.Length; ++j)
+                if(Random.Range(1, 100) < fishesPrefab[j].Appearance)
+                    CreateFish(fishesPrefab[j], waterPlace);
     }
 }

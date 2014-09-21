@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionWater()
     {
-        Destroy(GameObject.Instantiate(catchEffect, aimCtrl.gameObject.transform.position + transform.forward, Quaternion.identity), 5);
+        Destroy(GameObject.Instantiate(catchEffect, aimCtrl.gameObject.transform.position + transform.forward * 4, Quaternion.identity), 5);
     }
 
     private void OnHuntComplete()
